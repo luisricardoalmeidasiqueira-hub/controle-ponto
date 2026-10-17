@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+(function(){var u=function(f){return new URL(f,location.href).href};
+var m={name:"Controle de Ponto",short_name:"Ponto",start_url:u("./"),scope:u("./"),display:"standalone",background_color:"#f4f6f8",theme_color:"#1d4ed8",lang:"pt-BR",
+icons:[{src:u("icon-192.png"),sizes:"192x192",type:"image/png"},{src:u("icon-512.png"),sizes:"512x512",type:"image/png"},{src:u("icon-512.png"),sizes:"512x512",type:"image/png",purpose:"maskable"}]};
+var l=document.createElement("link");l.rel="manifest";l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/manifest+json"}));document.head.appendChild(l)})();
+</script>
+<meta name="theme-color" content="#1d4ed8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Controle de Ponto</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mu:#68758a;--pr:#1d4ed8;--bd:#dde3ea;--rd:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1c222b;--tx:#e8edf3;--mu:#93a0b3;--pr:#6b9bff;--bd:#2c3542;--rd:#ff6b5b}}
+*{box-sizing:border-box}body{margin:auto;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;font-size:13px;padding:8px;max-width:480px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:9px;margin-bottom:8px}
+.tabs{display:flex;gap:4px;margin-bottom:8px}.tabs button{flex:1;padding:7px 2px;font-size:12px;background:var(--card);color:var(--mu);border:1px solid var(--bd)}.tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.clock{font-size:30px;font-weight:700;text-align:center}.sub{text-align:center;color:var(--mu);font-size:12px}
+.row{display:flex;gap:6px}.row>*{flex:1;min-width:0}
+button{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:9px;font-size:13px;font-weight:600}
+button.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}button.d{background:var(--rd)}
+input{width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px}
+label{font-size:11px;color:var(--mu);display:block;margin-bottom:2px}
+.big{font-size:20px;font-weight:700;color:var(--pr)}.neg{color:var(--rd)}.mu{color:var(--mu)}
+.day{border-top:1px solid var(--bd);padding:6px 0;font-size:12px}.day:first-child{border-top:0}
+.ph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ph img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px}
+.pg{display:none}.pg.on{display:block}
+#zoom{display:none;position:fixed;inset:0;background:#000d;z-index:9;align-items:center;justify-content:center}#zoom img{max-width:96%;max-height:90%}
+details summary{font-weight:600;font-size:13px}
+</style></head><body>
+<div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button></div>
+
+<div class="pg on">
+ <div class="c">
+  <div class="clock" id="clk">--:--:--</div><div class="sub" id="dt"></div>
+  <div class="row" style="margin-top:8px"><button onclick="bater('i')">ENTRADA</button><button class="d" onclick="bater('o')">SAÍDA</button></div>
+  <div class="sub" style="margin-top:8px">Ou digite o horário na mão (se não bateu o ponto):</div><div class="row" style="margin-top:4px"><div><label>Entrada</label><input type="time" id="hi" onchange="manual()"></div><div><label>Saída</label><input type="time" id="ho" onchange="manual()"></div></div><button class="s" style="width:100%;margin-top:6px" onclick="folgaHoje()">🌴 Lançar / tirar folga de hoje</button><div class="sub" id="fgst"></div>
+ </div>
+ <div class="c">
+  <b>📷 Foto do relógio de ponto da empresa</b><div class="mu" style="font-size:11px">O app lê o horário da foto e preenche sozinho. A foto só fica guardada se não conseguir ler.</div>
+  <div class="row" style="margin-top:6px"><button class="s" onclick="foto('fi')">Foto da entrada</button><button class="s" onclick="foto('fo')">Foto da saída</button></div>
+  <div class="sub" id="fhoje" style="margin-top:6px"></div>
+ </div>
+ <div class="c"><div class="row"><div><div class="mu">Mês: trabalhadas</div><div class="big" id="rTrab">0h00</div></div><div><div class="mu">Saldo final (extras)</div><div class="big" id="rSaldo">0h00</div></div></div><div class="sub" id="rSys" style="margin-top:6px"></div></div>
+</div>
+
+<div class="pg">
+ <div class="c"><div class="row"><div><label>Mês</label><input type="month" id="mes" onchange="render()"></div><div><div class="mu">Saldo</div><div class="big" id="rSaldo2">0h00</div></div></div>
+ <div class="mu" style="font-size:11px;margin-top:4px">Sáb/dom: 1h = 1h30. Hora extra digitada do comprovante vale no lugar do cálculo.</div></div>
+ <div class="c"><details><summary>+ Lançar / corrigir um dia</summary>
+  <div class="row" style="margin-top:6px"><div><label>Data</label><input type="date" id="fd"></div><div><label>Almoço (h:mm)</label><input id="fl" placeholder="padrão"></div></div>
+  <div class="row" style="margin-top:6px"><div><label>Entrada</label><input type="time" id="fiT"></div><div><label>Saída</label><input type="time" id="foT"></div><div><label>Extra (h:mm)</label><input id="fe" placeholder="opcional"></div></div>
+  <div style="margin-top:6px"><label>Tipo do dia</label><select id="fg" style="width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px"><option value="">Dia de trabalho</option><option value="1">🌴 Folga (compensa a jornada)</option></select></div>
+ <div class="row" style="margin-top:6px"><button onclick="salvar()">Salvar</button><button class="s" onclick="limparForm()">Limpar</button></div>
+ </details></div>
+ <div class="c"><b>📸 Horas extras do sistema</b><div class="mu" style="font-size:11px">Tire foto ou print da tela do sistema do mês escolhido. O app lê e soma.</div><div class="row" style="margin-top:6px"><button class="s" onclick="foto('sys')">Foto do sistema</button><button class="s" onclick="limpaSys()">Limpar</button></div><div id="sysout" style="margin-top:6px"></div></div>
+<div class="c" id="lista"></div>
+</div>
+
+<div class="pg"><div class="c"><b>📷 Provas do ponto</b><div class="mu" style="font-size:11px;margin:2px 0 6px">Toque na foto para ampliar.</div><div id="gal"></div></div></div>
+
+<div class="pg"><div class="c">
+ <div class="row"><div><label>Entrada prevista</label><input type="time" id="ce"></div><div><label>Saída prevista</label><input type="time" id="cs"></div><div><label>Almoço (h:mm)</label><input id="cl" placeholder="1:30"></div></div>
+ <div class="row" style="margin-top:8px"><button onclick="salvaCfg()">Salvar</button><button class="s" onclick="backup()">Copiar backup</button></div>
+ <div class="mu" style="font-size:11px;margin-top:6px">Jornada = saída − entrada − almoço (seg a sex).</div>
+</div></div>
+
+<input type="file" accept="image/*" capture="environment" id="ff" style="display:none">
+<div id="zoom" onclick="this.style.display='none'"><img id="zi"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let D={cfg:{e:'07:30',s:'17:00',l:90,m:1},r:{}};
+try{const x=localStorage.getItem('ponto_v1');if(x)D=JSON.parse(x)}catch(e){}
+D.sys=D.sys||{};if(D.cfg.l===60&&!D.cfg.m){D.cfg.l=90;D.cfg.m=1;try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}}
+function gravar(){try{localStorage.setItem('ponto_v1',JSON.stringify(D));return 1}catch(e){alert('Memória cheia: apague fotos antigas.')}}
+const p2=n=>String(n).padStart(2,'0');
+const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
+const hm=t=>{const[a,b]=t.split(':').map(Number);return a*60+b};
+const hmStr=m=>Math.floor(m/60)+':'+p2(m%60);
+const alm=v=>{v=String(v||'').trim();if(!v)return null;if(!/[:h]/.test(v))return +v>=10?+v:+v*60;return parseHM(v)};
+const fmt=m=>{const s=m<0?'-':'';m=Math.abs(Math.round(m));return s+Math.floor(m/60)+'h'+p2(m%60)};
+const parseHM=t=>{if(!t)return null;t=t.trim().replace('h',':');const n=t.startsWith('-');t=t.replace('-','');const[a,b]=t.split(':');const v=(+a||0)*60+(+b||0);return n?-v:v};
+const fimSem=ds=>{const w=new Date(ds+'T12:00').getDay();return w==0||w==6};
+function aba(n){document.querySelectorAll('.pg').forEach((p,i)=>p.classList.toggle('on',i==n));document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i==n));render()}
+function calc(ds,r){
+ if(r.folga){const j=hm(D.cfg.s)-hm(D.cfg.e)-D.cfg.l;return{w:0,ex:-j}}
+ if(!r.i||!r.o)return null;
+ const l=r.l!=null&&r.l!==''?+r.l:D.cfg.l,fs=fimSem(ds);
+ const w=hm(r.o)-hm(r.i)-(fs?0:l);let ex;
+ if(r.e!=null&&r.e!=='')ex=parseHM(r.e);
+ else if(fs)ex=w*1.5;
+ else ex=w-(hm(D.cfg.s)-hm(D.cfg.e)-D.cfg.l);
+ return{w,ex};
+}
+function bater(t){
+ const d=new Date(),ds=hoje(),h=p2(d.getHours())+':'+p2(d.getMinutes());
+ const r=D.r[ds]=D.r[ds]||{};
+ if(r[t]&&!confirm('Já existe '+r[t]+'. Substituir?'))return;
+ r[t]=h;r.folga=false;gravar();render();
+}
+function folgaHoje(){const ds=hoje(),r=D.r[ds]=D.r[ds]||{};if(r.folga){r.folga=false}else{if(!confirm('Lançar hoje como FOLGA? Vai descontar a jornada do saldo de horas.'))return;r.folga=true;r.i='';r.o=''}gravar();render()}
+function manual(){const ds=hoje(),r=D.r[ds]=D.r[ds]||{};r.folga=false;r.i=$('hi').value;r.o=$('ho').value;gravar();render()}
+let alvo=null;
+function foto(k,ds){alvo={k,ds:ds||hoje()};$('ff').value='';$('ff').click()}
+$('ff').onchange=function(){
+ const f=this.files[0];if(!f||!alvo)return;const a=alvo;
+ const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,(a.k=='sys'?1100:640)/im.width);c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  lerFoto(a,c)};
+ im.src=URL.createObjectURL(f);
+};
+async function lerFoto(a,c){
+ if(a.k=='sys')return lerSys(c);
+ const guardar=()=>{const r=D.r[a.ds]=D.r[a.ds]||{};r[a.k]=c.toDataURL('image/jpeg',.55);r[a.k+'t']=p2(new Date().getHours())+':'+p2(new Date().getMinutes());gravar();render()};
+ let sm=null;try{sm=await claude.use('sample')}catch(e){}
+ if(!sm){alert('Leitura automática indisponível aqui. Guardei a foto; digite o horário.');return guardar()}
+ try{
+  $('fhoje').textContent='Lendo o horário da foto...';
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.8));
+  const {text}=await sm('Esta é a foto de um relógio de ponto ou comprovante de ponto. Leia o horário do registro. Responda SOMENTE com HH:MM em 24h. Se não conseguir ler, responda NAO.',{images:[blob],modelTier:'quick'});
+  const m=text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  if(m){const h=p2(m[1])+':'+m[2];
+   if(confirm('Li '+h+'. Está certo?')){const r=D.r[a.ds]=D.r[a.ds]||{};r[a.k=='fi'?'i':'o']=h;gravar();render();return}}
+ }catch(e){}
+ alert('Não deu para confirmar o horário. Guardei a foto; digite o horário na mão.');guardar();
+}
+function ver(ds,k){$('zi').src=D.r[ds][k];$('zoom').style.display='flex'}
+function salvar(){
+ const ds=$('fd').value;if(!ds)return alert('Escolha a data.');
+ const r=D.r[ds]=D.r[ds]||{};
+ r.i=$('fiT').value;r.o=$('foT').value;r.l=alm($('fl').value);r.e=$('fe').value;r.folga=$('fg').value==='1';if(r.folga){r.i='';r.o=''}
+ gravar();limparForm();render();
+}
+async function lerSys(c){
+ const mes=$('mes').value;let sm=null;try{sm=await claude.use('sample')}catch(e){}
+ if(!sm)return alert('Leitura automática indisponível aqui.');
+ $('sysout').textContent='Lendo a foto...';
+ try{
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));
+  const j=await sm.json('Esta é a foto de uma tela de sistema com as horas extras de um funcionário. Extraia cada linha com data e horas extras. Se a data não tiver ano, use '+mes.slice(0,4)+'. Responda SOMENTE JSON: {"itens":[{"data":"AAAA-MM-DD","horas":"H:MM"}],"total":"H:MM ou null"}. Não invente linhas.',{images:[blob],modelTier:'default'});
+  const itens=(j.itens||[]).filter(x=>x.data&&parseHM(x.horas)!=null);
+  const soma=itens.reduce((s,x)=>s+parseHM(x.horas),0);
+  const tot=j.total&&parseHM(j.total)!=null?parseHM(j.total):soma;
+  const txt=itens.map(x=>x.data.split('-').reverse().slice(0,2).join('/')+' '+x.horas).join('\n');
+  if(confirm('Li:\n'+txt+'\n\nTotal: '+fmt(tot)+'\nEstá certo?')){D.sys[mes]={itens,total:tot};gravar()}
+ }catch(e){alert('Não consegui ler a foto. Tente outra mais nítida.')}
+ render();
+}
+function limpaSys(){if(confirm('Limpar extras do sistema deste mês?')){delete D.sys[$('mes').value];gravar();render()}}
+function limparForm(){['fd','fiT','foT','fl','fe','fg'].forEach(i=>$(i).value='')}
+function editar(ds){const r=D.r[ds];$('fd').value=ds;$('fiT').value=r.i||'';$('foT').value=r.o||'';$('fl').value=r.l!=null&&r.l!==''?hmStr(+r.l):'';$('fe').value=r.e||'';$('fg').value=r.folga?'1':'';document.querySelector('details').open=true;scrollTo(0,0)}
+function apagar(ds){if(confirm('Apagar o dia '+ds+'?')){delete D.r[ds];gravar();render()}}
+function salvaCfg(){D.cfg={e:$('ce').value||'07:30',s:$('cs').value||'17:00',l:alm($('cl').value)||0,m:1};gravar();render();alert('Salvo')}
+function backup(){const t=JSON.stringify(D,(k,v)=>k[0]=='f'&&k.length<=3&&typeof v=='string'&&v.length>50?undefined:v);navigator.clipboard.writeText(t).then(()=>alert('Backup copiado (sem fotos).'))}
+function render(){
+ const ds=hoje(),r=D.r[ds]||{};
+ $('hi').value=r.i||'';$('ho').value=r.o||'';
+ $('fgst').textContent=r.folga?'🌴 Hoje está lançado como folga (compensa a jornada)':'';
+ $('fhoje').textContent='Fotos de hoje: entrada '+(r.fi?'✅':'—')+' · saída '+(r.fo?'✅':'—');
+ if(!$('mes').value)$('mes').value=ds.slice(0,7);
+ $('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
+ const m=$('mes').value;let tw=0,te=0,h='',g='';
+ Object.keys(D.r).sort().reverse().forEach(k=>{
+  const x=D.r[k],dd=new Date(k+'T12:00'),nome=dd.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+  if(x.fi||x.fo)g+=`<div style="margin-top:8px"><b>${nome}</b> <span class="mu">${x.i?'entrada '+x.i:''} ${x.o?'· saída '+x.o:''}</span><div class="ph" style="margin-top:4px">`+
+   (x.fi?`<div><img src="${x.fi}" onclick="ver('${k}','fi')"><div class="sub">entrada${x.fit?' '+x.fit:''}</div></div>`:'')+(x.fo?`<div><img src="${x.fo}" onclick="ver('${k}','fo')"><div class="sub">saída${x.fot?' '+x.fot:''}</div></div>`:'')+`</div></div>`;
+  if(!k.startsWith(m))return;
+  const c=calc(k,x);if(c){tw+=c.w;te+=c.ex}
+  h+=`<div class="day"><b>${nome}</b>${fimSem(k)?' <span class="mu">(folga ×1,5)</span>':''} · ${x.folga?'🌴 FOLGA':(x.i||'--:--')+' → '+(x.o||'--:--')}`+
+   (c?`<br>${x.folga?'':'trabalhou <b>'+fmt(c.w)+'</b> · '}${x.folga?'compensa':'extra'} <b class="${c.ex<0?'neg':''}">${fmt(c.ex)}</b>${x.e?' <span class="mu">(comprovante)</span>':''}`:' <span class="mu">incompleto</span>')+
+   `<div class="row" style="margin-top:4px"><button class="s" style="padding:4px" onclick="editar('${k}')">Editar</button><button class="s" style="padding:4px" onclick="foto('fi','${k}')">📷 Ent.</button><button class="s" style="padding:4px" onclick="foto('fo','${k}')">📷 Saí.</button><button class="s" style="padding:4px;color:var(--rd);border-color:var(--rd)" onclick="apagar('${k}')">🗑</button></div></div>`;
+ });
+ $('lista').innerHTML=h||'<span class="mu">Nenhum registro neste mês.</span>';
+ $('gal').innerHTML=g||'<span class="mu">Nenhuma foto ainda.</span>';
+ const sy=D.sys[m];
+ $('sysout').innerHTML=sy?sy.itens.map(x=>x.data.split('-').reverse().slice(0,2).join('/')+' · '+x.horas).join('<br>')+'<div class="big" style="margin-top:4px">Total sistema: '+fmt(sy.total)+'</div>':'<span class="mu">Nenhum lançamento deste mês.</span>';
+ $('rSys').textContent=sy?'Extras no sistema: '+fmt(sy.total):'';
+ $('rTrab').textContent=fmt(tw);
+ [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
+}
+function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
+tick();setInterval(tick,1000);render();
+</script></body></html>
