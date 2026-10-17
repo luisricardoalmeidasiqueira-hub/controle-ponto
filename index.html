@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4ed8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <script>
 (function(){var u=function(f){return new URL(f,location.href).href};
 var m={name:"Controle de Ponto",short_name:"Ponto",start_url:u("./"),scope:u("./"),display:"standalone",background_color:"#f4f6f8",theme_color:"#1d4ed8",lang:"pt-BR",
 icons:[{src:u("icon-192.png"),sizes:"192x192",type:"image/png"},{src:u("icon-512.png"),sizes:"512x512",type:"image/png"},{src:u("icon-512.png"),sizes:"512x512",type:"image/png",purpose:"maskable"}]};
 var l=document.createElement("link");l.rel="manifest";l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/manifest+json"}));document.head.appendChild(l)})();
 </script>
-<meta name="theme-color" content="#1d4ed8">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
 <title>Controle de Ponto</title>
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mu:#68758a;--pr:#1d4ed8;--bd:#dde3ea;--rd:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mu:#68758a;--pr:#1d4ed8;--bd:#dde3ea;--rd:#c0392b;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1c222b;--tx:#e8edf3;--mu:#93a0b3;--pr:#6b9bff;--bd:#2c3542;--rd:#ff6b5b}}
-*{box-sizing:border-box}body{margin:auto;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;font-size:13px;padding:8px;max-width:480px}
+*{box-sizing:border-box}body{margin:auto;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;font-size:13px;padding:calc(env(safe-area-inset-top,0px) + 24px) 8px 8px;max-width:480px}
 .c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:9px;margin-bottom:8px}
 .tabs{display:flex;gap:4px;margin-bottom:8px}.tabs button{flex:1;padding:7px 2px;font-size:12px;background:var(--card);color:var(--mu);border:1px solid var(--bd)}.tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
-.clock{font-size:30px;font-weight:700;text-align:center}.sub{text-align:center;color:var(--mu);font-size:12px}
+.clock{font-size:26px;font-weight:700;text-align:center}.sub{text-align:center;color:var(--mu);font-size:12px}
 .row{display:flex;gap:6px}.row>*{flex:1;min-width:0}
 button{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:9px;font-size:13px;font-weight:600}
 button.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}button.d{background:var(--rd)}
 input{width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px}
 label{font-size:11px;color:var(--mu);display:block;margin-bottom:2px}
+input[type=time],input[type=date],input[type=month]{-webkit-appearance:none;appearance:none;display:block;height:38px;min-height:38px;line-height:normal;margin:0;text-align:left}
+input::-webkit-date-and-time-value{text-align:left;margin:0;min-height:1.3em}
 .big{font-size:20px;font-weight:700;color:var(--pr)}.neg{color:var(--rd)}.mu{color:var(--mu)}
 .day{border-top:1px solid var(--bd);padding:6px 0;font-size:12px}.day:first-child{border-top:0}
 .ph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ph img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px}
 .pg{display:none}.pg.on{display:block}
 #zoom{display:none;position:fixed;inset:0;background:#000d;z-index:9;align-items:center;justify-content:center}#zoom img{max-width:96%;max-height:90%}
 details summary{font-weight:600;font-size:13px}
+.ft{text-align:center;color:var(--mu);font-size:11px;margin:10px 0 4px;line-height:1.5}
 </style></head><body>
 <div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button></div>
 
@@ -38,7 +41,7 @@ details summary{font-weight:600;font-size:13px}
  <div class="c">
   <div class="clock" id="clk">--:--:--</div><div class="sub" id="dt"></div>
   <div class="row" style="margin-top:8px"><button onclick="bater('i')">ENTRADA</button><button class="d" onclick="bater('o')">SAÍDA</button></div>
-  <div class="sub" style="margin-top:8px">Ou digite o horário na mão (se não bateu o ponto):</div><div class="row" style="margin-top:4px"><div><label>Entrada</label><input type="time" id="hi" onchange="manual()"></div><div><label>Saída</label><input type="time" id="ho" onchange="manual()"></div></div><button class="s" style="width:100%;margin-top:6px" onclick="folgaHoje()">🌴 Lançar / tirar folga de hoje</button><div class="sub" id="fgst"></div>
+  <div class="sub" style="margin-top:8px">Ou digite o horário na mão (se não bateu o ponto):</div><div class="row" style="margin-top:4px"><div><label>Entrada</label><input type="time" id="hi" onchange="manual()"></div><div><label>Saída</label><input type="time" id="ho" onchange="manual()"></div></div><button class="s" style="width:100%;margin-top:6px" onclick="folgaHoje()">🌴 Lançar / tirar folga de hoje</button><div class="sub" id="fgst"></div><div class="sub" id="sv" style="color:var(--pr)">✓ Tudo é salvo automaticamente</div>
  </div>
  <div class="c">
   <b>📷 Foto do relógio de ponto da empresa</b><div class="mu" style="font-size:11px">O app lê o horário da foto e preenche sozinho. A foto só fica guardada se não conseguir ler.</div>
@@ -66,9 +69,11 @@ details summary{font-weight:600;font-size:13px}
 <div class="pg"><div class="c">
  <div class="row"><div><label>Entrada prevista</label><input type="time" id="ce"></div><div><label>Saída prevista</label><input type="time" id="cs"></div><div><label>Almoço (h:mm)</label><input id="cl" placeholder="1:30"></div></div>
  <div class="row" style="margin-top:8px"><button onclick="salvaCfg()">Salvar</button><button class="s" onclick="backup()">Copiar backup</button></div>
+ <div class="row" style="margin-top:8px"><button class="s" onclick="compartilhar()">📤 Compartilhar app</button><button class="s" onclick="atualizar()">🔄 Atualizar app</button></div>
  <div class="mu" style="font-size:11px;margin-top:6px">Jornada = saída − entrada − almoço (seg a sex).</div>
 </div></div>
 
+<div class="ft">© 2026 Luis Ricardo de Almeida Siqueira · Todos os direitos reservados<br>Controle de Ponto · versão <span id="ver"></span></div>
 <input type="file" accept="image/*" capture="environment" id="ff" style="display:none">
 <div id="zoom" onclick="this.style.display='none'"><img id="zi"></div>
 
@@ -77,7 +82,7 @@ const $=id=>document.getElementById(id);
 let D={cfg:{e:'07:30',s:'17:00',l:90,m:1},r:{}};
 try{const x=localStorage.getItem('ponto_v1');if(x)D=JSON.parse(x)}catch(e){}
 D.sys=D.sys||{};if(D.cfg.l===60&&!D.cfg.m){D.cfg.l=90;D.cfg.m=1;try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}}
-function gravar(){try{localStorage.setItem('ponto_v1',JSON.stringify(D));return 1}catch(e){alert('Memória cheia: apague fotos antigas.')}}
+function gravar(){try{localStorage.setItem('ponto_v1',JSON.stringify(D));const s=document.getElementById('sv');if(s)s.textContent='✓ Salvo automaticamente às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});return 1}catch(e){alert('Memória cheia: apague fotos antigas.')}}
 const p2=n=>String(n).padStart(2,'0');
 const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
 const hm=t=>{const[a,b]=t.split(':').map(Number);return a*60+b};
@@ -182,6 +187,9 @@ function render(){
  $('rTrab').textContent=fmt(tw);
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
+const VERSAO='1.2';$('ver').textContent=VERSAO;
+function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
+function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
 tick();setInterval(tick,1000);render();
 </script></body></html>
