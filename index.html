@@ -254,7 +254,7 @@ async function iaChamar(parts){
 }
 function b64Canvas(c){const k=Math.min(1,1600/Math.max(c.width,c.height)),o=document.createElement('canvas');o.width=Math.round(c.width*k);o.height=Math.round(c.height*k);o.getContext('2d').drawImage(c,0,0,o.width,o.height);return o.toDataURL('image/jpeg',.85).split(',')[1]}
 async function iaLer(c,instr){if(!iaChave||navigator.onLine===false)return null;const j=await iaChamar([{text:instr},{inline_data:{mime_type:'image/jpeg',data:b64Canvas(c)}}]);iaErro='';iaStatus();return j}
-let iaAvisou=false;function iaFalhou(err){iaErro=String(err&&err.message||err);iaStatus();if(!iaAvisou){iaAvisou=true;setTimeout(()=>iaAvisou=false,8000);alert('🤖 A IA não conseguiu ler agora ('+iaErro+').\nVou tentar o leitor do celular.')}}
+let iaNada=false,iaAvisou=false;function iaFalhou(err){iaErro=String(err&&err.message||err);iaStatus();if(!iaAvisou){iaAvisou=true;setTimeout(()=>iaAvisou=false,8000);alert('🤖 A IA não conseguiu ler agora ('+iaErro+').\nVou tentar o leitor do celular.')}}
 function iaConfig(){
  try{const o=localStorage.getItem('controle_leituras_luis_ricardo_v1_ia');if(o&&o!==iaChave&&confirm('Achei a chave de IA do Controle de Leituras neste celular. Usar a mesma aqui?')){iaChave=o;iaErro='';iaSalvar();iaStatus();iaTestar();return}}catch(e){}
  const v=prompt('🤖 Leitura das fotos com IA (Google Gemini)\n\nCole aqui a sua chave do Google AI Studio. Ela fica só neste celular (não vai no backup nem na nuvem).\n\nDeixe em branco e toque OK para desligar.'+(iaErro?'\n\n🔴 Último problema: '+iaErro:''),'');
@@ -275,9 +275,9 @@ async function lerFoto(a,c){
  const msgF=t=>{const e=$('fhoje');if(e)e.textContent=t};
  if(iaChave){try{
   msgF('🤖 Lendo com IA...');
-  const j=await iaLer(c,'Esta é uma foto de um relógio de ponto ou comprovante de ponto de um funcionário. Leia o(s) horário(s) registrado(s), com hora e minuto. Responda só JSON: {"horarios":["HH:MM"]}. Use 24 horas. Se houver vários registros, liste todos na ordem em que aparecem. Se não conseguir ler, {"horarios":[]}.');
+  const j=await iaLer(c,'Esta é uma foto de um relógio de ponto ou comprovante de ponto de um funcionário. Leia o(s) horário(s) registrado(s), com hora e minuto. Em mostradores digitais de LED, ignore os segmentos apagados (aparecem fracos ou acinzentados) e leia só os números acesos; ignore os segundos. Responda só JSON: {"horarios":["HH:MM"]}. Use 24 horas. Se houver vários registros, liste todos na ordem em que aparecem. Se não conseguir ler, {"horarios":[]}.');
   const hs=((j&&j.horarios)||[]).map(x=>nt(String(x))).filter(Boolean);
-  if(hs.length&&pedeHora(hs,a,guardar))return;
+  if(hs.length&&pedeHora(hs,a,guardar))return;if(!hs.length)iaNada=true;
  }catch(e){iaFalhou(e)}}
  try{
   msgF('📷 Preparando a leitura… (a 1ª vez demora um pouco)');
@@ -290,7 +290,7 @@ async function lerFoto(a,c){
  }catch(e){}
  render();
  let sm=null;try{sm=await claude.use('sample')}catch(e){}
- if(!sm){alert('Não consegui ler o horário nessa foto. Guardei a foto como prova; digite o horário.');return guardar()}
+ if(!sm){alert((!iaChave?'A IA está desligada (Config → 🤖). Sem ela, o leitor do celular não lê mostradores de LED, como o de um relógio digital.':iaNada?'A IA olhou a foto e não achou um horário.':'Não consegui ler o horário nessa foto.')+'\nGuardei a foto como prova; digite o horário.');return guardar()}
  try{
   $('fhoje').textContent='Lendo o horário da foto...';
   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.8));
@@ -470,7 +470,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='4.6';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
+const VERSAO='4.7';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
