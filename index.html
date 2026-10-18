@@ -119,6 +119,8 @@ label{font-size:9.5px}.row{gap:4px}details summary{font-size:11.5px}
   <div class="row" style="margin-top:6px"><button class="s" onclick="nuvAgora()" title="Sincronizar agora" aria-label="Sincronizar agora">🔄</button><button class="s" onclick="nuvSair()" title="Sair" aria-label="Sair">🚪</button></div>
   <div class="sub" style="margin-top:4px">🔄 Sincronizar agora · 🚪 Sair</div>
   <div class="mu" style="font-size:10px">⏳ laranja: enviando ou sem login · ☁️ verde: sincronizado · 🚫 vermelho: sem conexão ou nuvem desativada. Fotos não vão para a nuvem.</div>
+  <div class="row" style="margin-top:6px"><button class="s xd" id="nuApaga" onclick="nuvApagarMinha()" title="Apagar meus dados da nuvem e parar de enviar" aria-label="Apagar meus dados da nuvem">🗑</button><button class="s" id="nuVolta" onclick="nuvVoltar()" title="Voltar a guardar na nuvem" aria-label="Voltar a guardar na nuvem" style="display:none">☁️</button></div>
+  <div class="sub" style="margin-top:4px">🗑 Apagar meus dados da nuvem e parar de enviar · ☁️ Voltar a guardar</div>
  </div>
  <div class="sub" id="nuMsg" style="text-align:left"></div>
  <div id="nuDev" style="display:none;margin-top:8px;border-top:1px solid var(--bd);padding-top:6px"><b>👨‍💻 Desenvolvedor</b>
@@ -399,7 +401,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='3.8';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
+const VERSAO='3.9';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
@@ -409,7 +411,7 @@ tick();setInterval(tick,1000);render();lkInit();
 (function(){
 const DEV='luissiqueir@hotmail.com',RELEASE_TS=Date.UTC(2026,8,26,3,0,0);
 const FB={apiKey:'AIzaSyChZp2bseKgHuo97i6A_XFe1StEcBhcDkE',authDomain:'cofre-seguro-2642d.firebaseapp.com',projectId:'cofre-seguro-2642d',storageBucket:'cofre-seguro-2642d.firebasestorage.app',messagingSenderId:'1076024528728',appId:'1:1076024528728:web:7dcb56285cc9e0d1a31f2d'};
-let F=null,auth=null,db=null,user=null,semNuvem=false,aplicando=false,timer=null,sincronizando=false,mudancas=0,nomeNovo='';
+let F=null,auth=null,db=null,user=null,semNuvem=false,aplicando=false,timer=null,sincronizando=false,mudancas=0,nomeNovo='',marcaPor='';
 const META='ponto_nuvem_meta',N=id=>document.getElementById(id);
 const meta=()=>{try{return JSON.parse(localStorage.getItem(META)||'{}')}catch(e){return {}}};
 const setMeta=o=>{try{localStorage.setItem(META,JSON.stringify(Object.assign(meta(),o)))}catch(e){}};
@@ -446,7 +448,7 @@ async function sincronizar(){
 async function erro(e){
   console.warn('Nuvem:',e);
   if(String(e&&e.code||'').includes('permission')&&user){
-    try{const m=await F.getDoc(F.doc(db,'ponto_sem_nuvem',user.uid));if(m.exists()){semNuvem=true;ind('off','O desenvolvedor desativou a nuvem para você. Seus horários ficam só neste celular.');return}}catch(x){}
+    try{const m=await F.getDoc(F.doc(db,'ponto_sem_nuvem',user.uid));if(m.exists()){semNuvem=true;marcaPor=String((m.data()||{}).by||'');botoes();ind('off',marcaPor=='pessoa'?'Você parou de guardar na nuvem. Seus horários ficam só neste celular.':'O desenvolvedor desativou a nuvem para você. Seus horários ficam só neste celular.');return}}catch(x){}
   }
   ind('off','Sem conexão com a nuvem. Fica salvo no celular e envia depois.');
 }
@@ -474,9 +476,10 @@ async function aoMudar(u){
       try{await F.setDoc(F.doc(db,'usuarios',u.uid),{uid:u.uid,email:u.email||'',name:nomeNovo||u.displayName||'',pending:true,requestedAt:Date.now(),updatedAt:Date.now()},{merge:true})}catch(e){}
       await F.signOut(auth);msg('Cadastro recebido! Aguarde a liberação do responsável. Depois é só entrar com e-mail e senha.');return}
     user=u;mostra();msg('');
+    let m=null;try{m=await F.getDoc(F.doc(db,'ponto_sem_nuvem',u.uid))}catch(e){}
+    semNuvem=!!(m&&m.exists());marcaPor=semNuvem?String((m.data()||{}).by||''):'';botoes();
+    if(semNuvem){try{await F.deleteDoc(F.doc(db,'ponto',u.uid))}catch(e){}ind('off',marcaPor=='pessoa'?'Você parou de guardar na nuvem. Seus horários ficam só neste celular.':'O desenvolvedor desativou a nuvem para você. Seus horários ficam só neste celular.');return}
     try{await F.setDoc(F.doc(db,'ponto_usuarios',u.uid),{uid:u.uid,email:u.email||'',name:u.displayName||nomeNovo||'',updatedAt:Date.now()},{merge:true})}catch(e){}
-    const m=await F.getDoc(F.doc(db,'ponto_sem_nuvem',u.uid));semNuvem=m.exists();
-    if(semNuvem){try{await F.deleteDoc(F.doc(db,'ponto',u.uid))}catch(e){}ind('off','O desenvolvedor desativou a nuvem para você. Seus horários ficam só neste celular.');return}
     await sincronizar();
     if(String(u.email||'').toLowerCase()==DEV)listaDev();
   }catch(e){erro(e)}
@@ -518,6 +521,27 @@ document.addEventListener('click',async function(ev){
   }catch(e){alert('Não consegui mudar. Confira se as regras novas do Firebase foram publicadas.')}
   listaDev();
 });
+function botoes(){const v=N('nuVolta');if(v)v.style.display=(semNuvem&&marcaPor=='pessoa')?'':'none';const a=N('nuApaga');if(a)a.style.display=semNuvem?'none':''}
+window.nuvApagarMinha=async function(){
+  if(!user||!F)return msg('Entre primeiro.',1);
+  if(!confirm('Apagar seus horários da nuvem e parar de enviar? Seus dados continuam neste celular. Você pode voltar depois.'))return;
+  msg('Apagando...');
+  try{
+    await F.setDoc(F.doc(db,'ponto_sem_nuvem',user.uid),{uid:user.uid,at:Date.now(),by:'pessoa'});
+    try{await F.deleteDoc(F.doc(db,'ponto',user.uid))}catch(e){}
+    try{await F.deleteDoc(F.doc(db,'ponto_usuarios',user.uid))}catch(e){}
+    semNuvem=true;marcaPor='pessoa';botoes();clearTimeout(timer);ind('off','Você parou de guardar na nuvem. Seus horários ficam só neste celular.');msg('Pronto: seus horários foram apagados da nuvem.')
+  }catch(e){msg('Não consegui apagar agora. Confira a internet e as regras do Firebase.',1)}
+};
+window.nuvVoltar=async function(){
+  if(!user||!F)return;
+  if(!confirm('Voltar a guardar seus horários na nuvem?'))return;
+  try{
+    await F.deleteDoc(F.doc(db,'ponto_sem_nuvem',user.uid));semNuvem=false;marcaPor='';botoes();
+    try{await F.setDoc(F.doc(db,'ponto_usuarios',user.uid),{uid:user.uid,email:user.email||'',name:user.displayName||'',updatedAt:Date.now()},{merge:true})}catch(e){}
+    msg('');mudancas++;setMeta({dirty:true});sincronizar()
+  }catch(e){msg('Não consegui voltar agora. Tente de novo.',1)}
+};
 async function init(){
   ind('sync','Conectando à nuvem…');
   try{
