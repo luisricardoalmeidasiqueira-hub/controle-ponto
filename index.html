@@ -71,7 +71,7 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
   <div class="sub" style="margin-top:8px">Ou digite o horário na mão (se não bateu o ponto):</div><div class="row" style="margin-top:4px"><div><label id="lbI">Entrada</label><div class="tw"><input id="hi" inputmode="numeric" maxlength="5" placeholder="ex.: 0730" oninput="mask(this)" onchange="manual()"><button class="x" onclick="limpa('hi')" title="Limpar entrada" aria-label="Limpar entrada">✕</button></div></div><div><label id="lbO">Saída</label><div class="tw"><input id="ho" inputmode="numeric" maxlength="5" placeholder="ex.: 1120" oninput="mask(this)" onchange="manual()"><button class="x" onclick="limpa('ho')" title="Limpar saída" aria-label="Limpar saída">✕</button></div></div></div><div class="row" style="margin-top:6px"><button onclick="salvarHoje()" title="Salvar" aria-label="Salvar">💾</button><button class="s" onclick="editarHoje()" title="Editar" aria-label="Editar">✏️</button><button class="s" onclick="folgaHoje()" title="Lançar ou tirar folga de hoje" aria-label="Lançar ou tirar folga de hoje">🌴</button></div><div class="sub" style="margin-top:4px">💾 Salvar · ✏️ Editar · 🌴 Lançar/tirar folga de hoje</div><div class="sub" id="fgst"></div><div class="sub" id="sv" style="color:var(--pr)">✓ Tudo é salvo automaticamente</div>
  </div>
  <div class="c">
-  <b>📷 Foto do relógio de ponto da empresa</b><div class="mu" style="font-size:11px">O app lê o horário da foto e preenche sozinho. A foto só fica guardada se não conseguir ler.</div>
+  <b>📷 Foto do relógio de ponto da empresa</b><div class="mu" style="font-size:11px">Com a IA ligada (Config → 🤖), o app lê o horário da foto e pergunta se está certo. Sem IA, tenta o leitor do celular. Se não conseguir, guarda a foto como prova e você digita.</div>
   <div class="row" style="margin-top:6px"><button class="s" onclick="foto('fi')">Foto da entrada</button><button class="s" onclick="foto('fo')">Foto da saída</button></div>
   <div class="sub" id="fhoje" style="margin-top:6px"></div>
  </div>
@@ -101,10 +101,10 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
   <div style="margin-top:6px"><label>Tipo do dia</label><select id="fg" style="width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px"><option value="">Dia de trabalho</option><option value="1">🌴 Folga (compensa a jornada)</option></select></div>
  <div class="row" style="margin-top:6px"><button onclick="salvar()">Salvar</button><button class="s" onclick="limparForm()">Limpar</button></div>
  </details></div>
- <div class="c"><b>📸 Horas extras do sistema</b><div class="mu" style="font-size:11px">Mande a foto da tela do sistema para o Claude no chat e lance aqui cada dia com as horas extras.</div>
+ <div class="c"><b>📸 Horas extras do sistema</b><div class="mu" style="font-size:11px">Tire foto da tela do sistema e a IA lê os dias e as horas (ligue a IA em Config → 🤖). Ou lance cada dia na mão.</div>
  <div class="row" style="margin-top:6px;align-items:flex-end"><div><label>Dia</label><input type="date" id="sysData"></div><div><label>Horas extras (h:mm)</label><input id="sysHoras" placeholder="ex.: 2:30"></div><button style="flex:none;width:44px" onclick="addSys()" title="Lançar o dia" aria-label="Lançar o dia">➕</button></div>
- <div class="sub" style="margin-top:4px">➕ Lançar o dia · ✕ tirar um dia da lista</div>
- <div class="row" style="margin-top:4px"><button class="s xd" onclick="limpaSys()" title="Limpar o mês" aria-label="Limpar o mês">🗑 Limpar o mês</button></div>
+ <div class="sub" style="margin-top:4px">➕ Lançar o dia · ✕ tirar um dia · 📷 Ler foto (IA)</div>
+ <div class="row" style="margin-top:4px"><button class="s" onclick="foto('sys')" title="Ler foto da tela do sistema com IA" aria-label="Ler foto da tela do sistema">📷 Ler foto (IA)</button><button class="s xd" onclick="limpaSys()" title="Limpar o mês" aria-label="Limpar o mês">🗑 Limpar o mês</button></div>
  <div id="sysout" style="margin-top:6px"></div></div>
 <div class="c" id="lista"></div>
 </div>
@@ -140,7 +140,11 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
  <div class="row" style="margin-top:8px"><button class="s" onclick="restaurar()" title="Restaurar backup" aria-label="Restaurar backup">📥</button><button class="s" onclick="baixarIcs()" title="Lembretes no calendário" aria-label="Lembretes no calendário">📅</button></div>
  <div class="sub" style="margin-top:4px">📥 Restaurar backup (cole o que copiou em outro celular) · 📅 Lembretes do 2º e 3º dia útil no calendário</div>
  <div class="mu" style="font-size:11px;margin-top:6px">Jornada = saída − entrada − almoço (seg a sex).</div>
-</div><div class="c"><b>🔒 Bloqueio do app</b>
+</div><div class="c"><b>🤖 Leitura de fotos com IA</b>
+  <div class="row" style="margin-top:4px"><button onclick="iaConfig()" title="Colar a chave do Google" aria-label="Chave do Google">🔑</button><button class="s" onclick="iaTestar()" title="Testar a IA" aria-label="Testar a IA">✅</button></div>
+  <div class="sub" style="margin-top:4px">🔑 Colar ou trocar a chave · ✅ Testar</div><div class="sub" id="iaSt"></div>
+  <div class="mu" style="font-size:10px;text-align:center">Usa o Google Gemini. A chave fica só neste celular: não vai no backup nem na nuvem. A foto vai para o Google; no plano grátis ele pode usar o conteúdo. Cubra CPF e endereço antes de ler um holerite.</div></div>
+ <div class="c"><b>🔒 Bloqueio do app</b>
   <div class="row" style="margin-top:4px"><button onclick="pinDefinir()" title="Definir PIN de 4 números" aria-label="Definir PIN">🔑</button><button class="s" onclick="bioAtivar()" title="Ativar Face ID ou digital" aria-label="Face ID ou digital">🙂</button><button class="s" onclick="pinRemover()" title="Tirar o bloqueio" aria-label="Tirar o bloqueio">🔓</button></div>
   <div class="sub" style="margin-top:4px">🔑 Definir PIN · 🙂 Face ID / digital · 🔓 Tirar bloqueio</div><div class="sub" id="lkSt"></div>
   <div class="mu" style="font-size:10px;text-align:center">O app pede o PIN ao abrir e depois de 1 minuto fora dele. Anote o PIN: se esquecer, só apagando os dados do app.</div></div>
@@ -159,8 +163,8 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
  <div class="c"><b>🧾 Holerite</b> <span class="mu" style="font-size:11px">(conferir as horas extras pagas)</span>
   <div class="row" style="margin-top:6px"><div><label>Mês do holerite</label><input type="month" id="hmr" onchange="$('hh').value=$('hv').value='';render()"></div></div>
   <div class="row" style="margin-top:6px"><div><label>Horas extras pagas</label><input id="hh" placeholder="ex.: 6:00" oninput="liveHol()"></div><div><label>Valor pago (R$)</label><input id="hv" inputmode="decimal" placeholder="ex.: 150,00" oninput="liveHol()"></div></div>
-  <div class="row" style="margin-top:6px"><button onclick="salvaHol()" title="Salvar holerite" aria-label="Salvar holerite">💾</button><button class="s" onclick="delHol()" title="Apagar holerite" aria-label="Apagar holerite">🗑</button></div>
-  <div class="sub" style="margin-top:4px">💾 Salvar · 🗑 Apagar<br>Para conferir pela foto, mande para o Claude no chat e digite aqui as horas e o valor.</div>
+  <div class="row" style="margin-top:6px"><button class="s" onclick="foto('hol')" title="Ler foto do holerite com IA" aria-label="Ler foto do holerite">📷</button><button onclick="salvaHol()" title="Salvar holerite" aria-label="Salvar holerite">💾</button><button class="s" onclick="delHol()" title="Apagar holerite" aria-label="Apagar holerite">🗑</button></div>
+  <div class="sub" style="margin-top:4px">📷 Ler a foto (IA) · 💾 Salvar · 🗑 Apagar<br>A foto do holerite não fica guardada. Ligue a IA em Config → 🤖 para ler por foto.</div>
   <div class="sub" id="hres" style="margin-top:6px"></div></div>
  <div class="c"><b>💾 Cópia de segurança</b><div class="mu" style="font-size:10px">Leva tudo (dias, holerites, férias, extras do sistema e jornada), sem as fotos. Mande para o notebook por WhatsApp ou e-mail e guarde lá.</div>
   <div class="row" style="margin-top:4px"><button onclick="exportaArq()" title="Exportar arquivo" aria-label="Exportar arquivo">⬇️ Exportar</button><button class="s" onclick="$('fimp').click()" title="Importar arquivo" aria-label="Importar arquivo">⬆️ Importar</button></div>
@@ -224,15 +228,69 @@ let alvo=null;
 function foto(k,ds){alvo={k,ds:ds||hoje()};$('ff').value='';$('ff').click()}
 $('ff').onchange=function(){
  const f=this.files[0];if(!f||!alvo)return;const a=alvo;
- const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,(a.k=='sys'||a.k=='hol'?1100:640)/im.width);c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+ const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,1600/im.width);c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
   lerFoto(a,c)};
  im.src=URL.createObjectURL(f);
 };
+const IAK='ponto_ia',IAM='ponto_ia_m';let iaChave='',iaModelo='',iaErro='';
+try{iaChave=localStorage.getItem(IAK)||'';iaModelo=localStorage.getItem(IAM)||''}catch(e){}
+const IA_MODELOS=['gemini-flash-latest','gemini-2.5-flash','gemini-2.0-flash','gemini-flash-lite-latest','gemini-2.5-flash-lite'];
+function iaSalvar(){try{iaChave?localStorage.setItem(IAK,iaChave):localStorage.removeItem(IAK);iaModelo?localStorage.setItem(IAM,iaModelo):localStorage.removeItem(IAM)}catch(e){}}
+function iaStatus(){const e=$('iaSt');if(e)e.textContent=iaChave?(iaErro?'🔴 Último problema: '+iaErro:'🟢 IA ligada'):'⚪ IA desligada (a foto só guarda ou usa o leitor do celular)'}
+function iaMotivo(st,t){return st>=500?'o Google está sobrecarregado agora (a chave está certa, tente de novo daqui a pouco)':st===429?'o limite grátis da chave acabou por agora (tente mais tarde)':(st===400||st===401||st===403)&&/key|chave|API_KEY|permission|PERMISSION/i.test(t)?'a chave não foi aceita pelo Google':'erro '+st}
+async function iaChamar(parts){
+  const ms=iaModelo?[iaModelo,...IA_MODELOS.filter(m=>m!==iaModelo)]:IA_MODELOS;let ult='nenhum modelo respondeu',ocup=null;
+  for(let volta=0;volta<2;volta++){if(volta){if(!ocup)break;await new Promise(ok=>setTimeout(ok,2500))}
+  for(const m of ms){
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':iaChave},body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0,responseMimeType:'application/json'}})});
+    if(r.status===404){ult='modelo '+m+' não existe';continue}
+    if(r.status===429||r.status>=500){ocup=iaMotivo(r.status,await r.text());continue}
+    if(!r.ok){const t=await r.text();throw new Error(iaMotivo(r.status,t))}
+    const j=await r.json(),t=((((j.candidates||[])[0]||{}).content||{}).parts||[]).map(x=>x.text||'').join('');
+    if(iaModelo!==m){iaModelo=m;iaSalvar()}
+    return JSON.parse(t.replace(/^\s*```(?:json)?/,'').replace(/```\s*$/,''));
+  }}
+  throw new Error(ocup||ult);
+}
+function b64Canvas(c){const k=Math.min(1,1600/Math.max(c.width,c.height)),o=document.createElement('canvas');o.width=Math.round(c.width*k);o.height=Math.round(c.height*k);o.getContext('2d').drawImage(c,0,0,o.width,o.height);return o.toDataURL('image/jpeg',.85).split(',')[1]}
+async function iaLer(c,instr){if(!iaChave||navigator.onLine===false)return null;const j=await iaChamar([{text:instr},{inline_data:{mime_type:'image/jpeg',data:b64Canvas(c)}}]);iaErro='';iaStatus();return j}
+let iaAvisou=false;function iaFalhou(err){iaErro=String(err&&err.message||err);iaStatus();if(!iaAvisou){iaAvisou=true;setTimeout(()=>iaAvisou=false,8000);alert('🤖 A IA não conseguiu ler agora ('+iaErro+').\nVou tentar o leitor do celular.')}}
+function iaConfig(){
+ try{const o=localStorage.getItem('controle_leituras_luis_ricardo_v1_ia');if(o&&o!==iaChave&&confirm('Achei a chave de IA do Controle de Leituras neste celular. Usar a mesma aqui?')){iaChave=o;iaErro='';iaSalvar();iaStatus();iaTestar();return}}catch(e){}
+ const v=prompt('🤖 Leitura das fotos com IA (Google Gemini)\n\nCole aqui a sua chave do Google AI Studio. Ela fica só neste celular (não vai no backup nem na nuvem).\n\nDeixe em branco e toque OK para desligar.'+(iaErro?'\n\n🔴 Último problema: '+iaErro:''),'');
+ if(v===null)return;const k=v.trim().replace(/\s+/g,'');
+ if(!k){if(iaChave&&confirm('Desligar a leitura com IA e apagar a chave deste celular?')){iaChave='';iaModelo='';iaErro='';iaSalvar();iaStatus()}return}
+ iaChave=k;iaErro='';iaSalvar();iaStatus();iaTestar()}
+async function iaTestar(){if(!iaChave)return alert('Cole a chave primeiro (🔑).');try{const j=await iaChamar([{text:'Responda só JSON: {"ok":true}'}]);iaErro='';iaStatus();alert(j&&j.ok?'🟢 IA funcionando.':'🟢 A IA respondeu.')}catch(e){iaErro=String(e&&e.message||e);iaStatus();alert('🔴 A IA não funcionou: '+iaErro)}}
+function pedeHora(hs,a,guardar){const v=prompt(hs.length>1?'Li estes horários: '+hs.join(' · ')+'.\nDigite o que vale (ex.: 0732):':'Li o horário '+hs[0]+'.\nConfirme ou corrija (ex.: 0732):',hs[0]);if(v===null){guardar();return true}const h=nt(v);if(h){const r=D.r[a.ds]=D.r[a.ds]||{};r[a.k=='fi'?'i':'o']=h;gravar();render();return true}return false}
+let __tess=null;
+function carregarTesseract(){if(window.Tesseract)return Promise.resolve();if(__tess)return __tess;__tess=new Promise((ok,erro)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>{__tess=null;erro()};document.head.appendChild(s)});return __tess}
+function realce(c){const o=document.createElement('canvas');o.width=c.width;o.height=c.height;const g=o.getContext('2d');g.drawImage(c,0,0);const d=g.getImageData(0,0,o.width,o.height),px=d.data;for(let i=0;i<px.length;i+=4){let y=.299*px[i]+.587*px[i+1]+.114*px[i+2];y=y<128?Math.max(0,y-25):Math.min(255,y+25);px[i]=px[i+1]=px[i+2]=y}g.putImageData(d,0,0);return o}
+async function ocrTexto(c,msg){await carregarTesseract();const w=await Tesseract.createWorker('por',1,{logger:m=>{if(m.status==='recognizing text')msg('🔎 Lendo… '+Math.round((m.progress||0)*100)+'%')}});try{await w.setParameters({tessedit_pageseg_mode:'11'});const r=await w.recognize(realce(c));return r.data.text||''}finally{await w.terminate()}}
+function acharHoras(t){const out=[],re=/\b([01]?\d|2[0-3])\s*[:hH]\s*([0-5]\d)\b/g;let m;while((m=re.exec(t))){const h=p2(m[1])+':'+m[2];if(!out.includes(h))out.push(h)}return out}
+const peq=c=>{const k=Math.min(1,640/c.width),o=document.createElement('canvas');o.width=c.width*k;o.height=c.height*k;o.getContext('2d').drawImage(c,0,0,o.width,o.height);return o.toDataURL('image/jpeg',.55)};
 async function lerFoto(a,c){
  if(a.k=='sys')return lerSys(c);if(a.k=='hol')return lerHol(c);
- const guardar=()=>{const r=D.r[a.ds]=D.r[a.ds]||{};r[a.k]=c.toDataURL('image/jpeg',.55);r[a.k+'t']=p2(new Date().getHours())+':'+p2(new Date().getMinutes());gravar();render()};
+ const guardar=()=>{const r=D.r[a.ds]=D.r[a.ds]||{};r[a.k]=peq(c);r[a.k+'t']=p2(new Date().getHours())+':'+p2(new Date().getMinutes());gravar();render()};
+ const msgF=t=>{const e=$('fhoje');if(e)e.textContent=t};
+ if(iaChave){try{
+  msgF('🤖 Lendo com IA...');
+  const j=await iaLer(c,'Esta é uma foto de um relógio de ponto ou comprovante de ponto de um funcionário. Leia o(s) horário(s) registrado(s), com hora e minuto. Responda só JSON: {"horarios":["HH:MM"]}. Use 24 horas. Se houver vários registros, liste todos na ordem em que aparecem. Se não conseguir ler, {"horarios":[]}.');
+  const hs=((j&&j.horarios)||[]).map(x=>nt(String(x))).filter(Boolean);
+  if(hs.length&&pedeHora(hs,a,guardar))return;
+ }catch(e){iaFalhou(e)}}
+ try{
+  msgF('📷 Preparando a leitura… (a 1ª vez demora um pouco)');
+  const hs=acharHoras(await ocrTexto(c,msgF));
+  if(hs.length){
+   const v=prompt(hs.length>1?'Li estes horários: '+hs.join(' · ')+'.\nDigite o que vale (ex.: 0732):':'Li o horário '+hs[0]+'.\nConfirme ou corrija (ex.: 0732):',hs[0]);
+   if(v===null){guardar();return}
+   const h=nt(v);if(h){const r=D.r[a.ds]=D.r[a.ds]||{};r[a.k=='fi'?'i':'o']=h;gravar();render();return}
+  }
+ }catch(e){}
+ render();
  let sm=null;try{sm=await claude.use('sample')}catch(e){}
- if(!sm){alert('Leitura automática indisponível aqui. Guardei a foto; digite o horário.');return guardar()}
+ if(!sm){alert('Não consegui ler o horário nessa foto. Guardei a foto como prova; digite o horário.');return guardar()}
  try{
   $('fhoje').textContent='Lendo o horário da foto...';
   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.8));
@@ -255,20 +313,21 @@ function pintaHol(hl,mm,ap,previa){
  'Holerite pagou: <b>'+fmt(hl.m)+'</b> = <b>'+rr(hl.v)+'</b>'+(rate?' · <b>'+rr(rate)+'/h</b>':'')+
  '<br>No app ('+mf(mm)+'): <b>'+fmt(ap)+'</b><br>'+
  (ok?'<b style="color:var(--pr)">✅ Confere</b>':'<b class="neg">⚠️ Diferença: '+fmt(d)+'</b>'+(rate?' (≈ '+rr(Math.abs(d)/60*rate)+')':'')+'<br><span class="mu">'+(d>0?'O app tem mais horas do que o holerite pagou.':'O holerite pagou mais horas do que o app tem.')+'</span>')+
- (!previa&&hl.em?'<br><span class="mu">Conferência salva em '+new Date(hl.em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' (o app tinha '+fmt(hl.ap||0)+')</span>':'')+
+ (!previa&&hl.fg?'<br>FGTS do mês no holerite: <b>'+rr(hl.fg)+'</b>':'')+(!previa&&hl.em?'<br><span class="mu">Conferência salva em '+new Date(hl.em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' (o app tinha '+fmt(hl.ap||0)+')</span>':'')+
  (!previa&&hl.m>0?'<br><button class="s" style="padding:4px 8px;margin-top:4px" onclick="usarVh()">Usar este R$/h como valor da hora extra</button>':'')}
 function liveHol(){const mm=$('hmr').value,m=ph($('hh').value),v=parseFloat(String($('hv').value).replace(',','.'));if(!mm||m==null||isNaN(v))return;$('hres').innerHTML=pintaHol({m,v},mm,appExtMes(mm),true)}
-function salvaHol(){const mm=$('hmr').value;if(!mm)return alert('Escolha o mês do holerite.');const m=ph($('hh').value),v=parseFloat(String($('hv').value).replace(',','.'));if(m==null||isNaN(v))return alert('Preencha as horas extras pagas (ex.: 6:00) e o valor pago (ex.: 150,00).');H()[mm]={m,v,ap:appExtMes(mm),em:agora()};gravar();render()}
+function salvaHol(){const mm=$('hmr').value;if(!mm)return alert('Escolha o mês do holerite.');const m=ph($('hh').value),v=parseFloat(String($('hv').value).replace(',','.'));if(m==null||isNaN(v))return alert('Preencha as horas extras pagas (ex.: 6:00) e o valor pago (ex.: 150,00).');H()[mm]={m,v,fg:(H()[mm]||{}).fg||0,ap:appExtMes(mm),em:agora()};gravar();render()}
 function delHol(){const mm=$('hmr').value;if(H()[mm]&&confirm('Apagar o holerite de '+mm.split('-').reverse().join('/')+'?')){delete H()[mm];$('hh').value=$('hv').value='';gravar();render()}}
 function usarVh(){const hl=H()[$('hmr').value];if(!hl||!hl.m)return;D.cfg.vh=(hl.v/(hl.m/60)).toFixed(2).replace('.',',');gravar();render();alert('Valor da hora extra ajustado para R$ '+D.cfg.vh+' (aba Mês)')}
-async function lerHol(c){let sm=null;try{sm=await claude.use('sample')}catch(e){}
- if(!sm)return alert('A leitura da foto só funciona no link do Claude. Digite as horas extras e o valor do holerite.');
- $('hres').textContent='Lendo o holerite...';
- try{const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));
-  const j=await sm.json('Esta é a foto de um holerite (contracheque) brasileiro. Some todas as linhas de HORA EXTRA (qualquer percentual) e responda SOMENTE JSON: {"ref":"AAAA-MM","horas":"H:MM","valor":numero em reais}. ref é o mês de referência do holerite. Se não houver hora extra use horas "0:00" e valor 0. Não invente.',{images:[blob],modelTier:'default'});
-  const m=ph(j.horas),v=Number(j.valor);
-  if(m!=null&&!isNaN(v)&&confirm('Li: horas extras '+fmt(m)+' = '+rr(v)+(j.ref?' ('+j.ref+')':'')+'. Está certo?')){const mm=/^\d{4}-\d{2}$/.test(j.ref||'')?j.ref:$('hmr').value;$('hmr').value=mm;H()[mm]={m,v,ap:appExtMes(mm),em:agora()};gravar()}
- }catch(e){alert('Não consegui ler o holerite. Digite as horas e o valor.')}
+async function lerHol(c){
+ if(!iaChave)return alert('Para ler a foto, ligue a IA em Config → 🤖 (cole a chave). Ou digite as horas e o valor.');
+ if(!confirm('A foto vai para o Google (Gemini) para ser lida. No plano grátis o Google pode usar o conteúdo. Cubra o CPF e o endereço antes. Continuar?'))return;
+ $('hres').textContent='🤖 Lendo o holerite...';
+ try{
+  const j=await iaLer(c,'Esta é a foto de um holerite (contracheque) brasileiro. Some todas as linhas de HORA EXTRA (qualquer percentual, como HE 50% ou HE 100%) e responda só JSON: {"ref":"AAAA-MM","horas":"H:MM","valor":numero em reais,"fgts":numero em reais ou null}. ref é o mês de referência do holerite. fgts é o valor do FGTS do mês, que costuma aparecer no rodapé. Se não houver hora extra use horas "0:00" e valor 0. Não invente.');
+  const m=ph(j&&j.horas),v=Number(j&&j.valor),fg=Number(j&&j.fgts)||0;
+  if(m!=null&&!isNaN(v)&&confirm('Li: horas extras '+fmt(m)+' = '+rr(v)+(fg>0?'\nFGTS do mês: '+rr(fg):'')+(j.ref?'\nMês: '+mf(j.ref):'')+'\n\nEstá certo?')){const mm=/^\d{4}-\d{2}$/.test(j.ref||'')?j.ref:$('hmr').value;$('hmr').value=mm;H()[mm]={m,v,fg:fg>0?fg:0,ap:appExtMes(mm),em:agora()};gravar()}
+ }catch(e){iaFalhou(e)}
  render()}
 const nomeD=k=>new Date(k+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
 const lx=(f,l)=>'<button class="s xd" onclick="'+f+'" aria-label="'+l+'" title="'+l+'">🗑</button>';
@@ -328,20 +387,18 @@ function salvar(){
  gravar();limparForm();render();
 }
 async function lerSys(c){
- const mes=$('mes').value;let sm=null;try{sm=await claude.use('sample')}catch(e){}
- if(!sm)return alert('Leitura automática indisponível aqui.');
- $('sysout').textContent='Lendo a foto...';
+ if(!iaChave)return alert('Para ler a foto, ligue a IA em Config → 🤖 (cole a chave). Ou lance os dias na mão.');
+ const mes=$('mes').value||hoje().slice(0,7);$('sysout').textContent='🤖 Lendo a foto...';
  try{
-  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));
-  const j=await sm.json('Esta é a foto de uma tela de sistema com as horas extras de um funcionário. Extraia cada linha com data e horas extras. Se a data não tiver ano, use '+mes.slice(0,4)+'. Responda SOMENTE JSON: {"itens":[{"data":"AAAA-MM-DD","horas":"H:MM"}],"total":"H:MM ou null"}. Não invente linhas.',{images:[blob],modelTier:'default'});
-  const itens=(j.itens||[]).filter(x=>x.data&&parseHM(x.horas)!=null);
-  const soma=itens.reduce((s,x)=>s+parseHM(x.horas),0);
-  const tot=j.total&&parseHM(j.total)!=null?parseHM(j.total):soma;
-  const txt=itens.map(x=>x.data.split('-').reverse().slice(0,2).join('/')+' '+x.horas).join('\n');
-  if(confirm('Li:\n'+txt+'\n\nTotal: '+fmt(tot)+'\nEstá certo?')){D.sys[mes]={itens,total:tot};gravar()}
- }catch(e){alert('Não consegui ler a foto. Tente outra mais nítida.')}
- render();
-}
+  const j=await iaLer(c,'Esta é a foto de uma tela de sistema de uma empresa com as horas extras de um funcionário, dia a dia. Extraia cada linha que tenha uma data e uma quantidade de horas extras. Se a data não tiver ano, use '+mes.slice(0,4)+'. Responda só JSON: {"itens":[{"data":"AAAA-MM-DD","horas":"H:MM"}],"total":"H:MM ou null"}. Não invente linhas. Se não achar, {"itens":[]}.');
+  const itens=((j&&j.itens)||[]).filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')&&ph(x.horas)>0);
+  if(!itens.length){alert('Não achei horas extras nessa foto. Tente outra mais nítida, ou lance na mão.');render();return}
+  const txt=itens.map(x=>x.data.split('-').reverse().slice(0,2).join('/')+' → '+x.horas).join('\n'),soma=itens.reduce((t,x)=>t+ph(x.horas),0);
+  if(confirm('Li:\n'+txt+'\n\nTotal: '+fmt(soma)+(j.total?' (a tela diz '+j.total+')':'')+'\nEstá certo?')){
+   itens.forEach(x=>{const k=x.data.slice(0,7),o=(D.sys[k]=D.sys[k]||{itens:[],total:0});o.itens=o.itens.filter(y=>y.data!=x.data);o.itens.push({data:x.data,horas:hmStr(ph(x.horas))});o.itens.sort((p,q)=>p.data<q.data?-1:1);o.total=o.itens.reduce((t,y)=>t+(ph(y.horas)||0),0)});
+   $('mes').value=itens[0].data.slice(0,7);gravar()}
+ }catch(e){iaFalhou(e)}
+ render()}
 function addSys(){const d=$('sysData').value,h=ph($('sysHoras').value);
  if(!d)return alert('Escolha o dia.');if(h==null||h<=0)return alert('Digite as horas extras, por exemplo 2:30.');
  const k=d.slice(0,7);const o=(D.sys[k]=D.sys[k]||{itens:[],total:0});
@@ -413,11 +470,11 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='4.4';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
+const VERSAO='4.6';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
-tick();setInterval(tick,1000);render();lkInit();
+tick();setInterval(tick,1000);render();lkInit();iaStatus();
 document.addEventListener('click',function(e){const t=e.target;if(t&&t.tagName=='INPUT'&&(t.type=='date'||t.type=='month')&&t.showPicker&&!t.disabled){try{t.showPicker()}catch(x){}}});
 try{if(!$('dmData').value)$('dmData').value=hoje()}catch(e){}
 </script>
