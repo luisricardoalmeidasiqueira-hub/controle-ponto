@@ -411,7 +411,7 @@ function editar(ds){const r=D.r[ds];$('fd').value=ds;$('fiT').value=r.i||'';$('f
 function nomeDia(k){return new Date(k+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','')}
 var FN=[];try{FN=JSON.parse(localStorage.getItem('ponto_ferias_nuvem')||'[]')}catch(e){FN=[]}
 function FER(){return (D.fer||[]).concat(FN)}
-function FNhtml(){return FN.map(f=>'<div class="day">☁️ '+f.a.split('-').reverse().join('/')+' a '+f.b.split('-').reverse().join('/')+' <span class="mu">do app de Férias'+(f.st&&f.st!='aprovada'?' · '+f.st:'')+'</span></div>').join('')}
+function FNhtml(){return FN.map(f=>'<div class="day" style="display:flex;align-items:center;gap:8px;padding:8px 2px;line-height:1.4;border-top:1px solid var(--bd)"><span style="flex:none;font-size:15px">☁️</span><div style="min-width:0"><b>'+f.a.split('-').reverse().join('/')+' a '+f.b.split('-').reverse().join('/')+'</b><div class="mu" style="font-size:10px;line-height:1.3">do app de Férias'+(f.st&&f.st!='aprovada'?' · '+f.st:'')+'</div></div></div>').join('')}
 function emFerias(k){return FER().some(f=>k>=f.a&&k<=f.b)}
 function lancarDia(k){aba(1);$('fd').value=k;const r=D.r[k]||{};$('fiT').value=r.i||'';$('foT').value=r.o||'';$('fl').value=r.l!=null&&r.l!==''?hmStr(+r.l):'';$('fe').value=r.e||'';$('fg').value=r.folga?'1':'';$('fdet').open=true;scrollTo(0,0)}
 let dmModo='dia';
@@ -473,7 +473,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='5.1';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='5.2';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
