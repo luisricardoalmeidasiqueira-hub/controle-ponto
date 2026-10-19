@@ -120,7 +120,7 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
 <div class="c" id="lista"></div>
 </div>
 
-<div class="pg"><div class="c"><b>📷 Provas do ponto</b><div class="mu" style="font-size:11px;margin:2px 0 6px">Toque na foto para ampliar.</div><div id="gal"></div></div></div>
+<div class="pg"><div class="c"><b>📷 Provas do ponto</b><div class="mu" style="font-size:11px;margin:2px 0 6px">Toque na foto para ampliar. Fotos com mais de 30 dias saem do celular e ficam só na nuvem.</div><div id="gal"></div><button class="s" style="width:100%;margin-top:10px" onclick="verFotosNuvem()">☁️ Ver fotos antigas (na nuvem)</button><div id="galOld"></div></div></div>
 
 <div class="pg"><div class="c" id="nuvCard"><b>☁️ Nuvem</b> <span class="mu" id="nuvTxt" style="font-size:11px"></span>
  <div id="nuOut" style="margin-top:6px">
@@ -485,7 +485,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='6.2';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='6.3';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
@@ -548,6 +548,18 @@ function mesclar(rem){aplicando=true;try{D.r=D.r||{};Object.keys(rem.r||{}).forE
 function trocar(rem){aplicando=true;try{const loc=D.r||{};Object.keys(rem.r||{}).forEach(k=>{const l=loc[k];if(l){if(l.fi)rem.r[k].fi=l.fi;if(l.fo)rem.r[k].fo=l.fo}});rem.sys=rem.sys||{};rem.fer=rem.fer||[];rem.cfg=rem.cfg||D.cfg;D=rem;try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}}finally{aplicando=false}try{render()}catch(e){}}
 const FOTOS_UP='ponto_fotos_up';
 function upMap(){try{return JSON.parse(localStorage.getItem(FOTOS_UP)||'{}')}catch(e){return {}}}
+const FOTO_DIAS=30;
+function corteFotos(){const d=new Date();d.setDate(d.getDate()-FOTO_DIAS);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function limparFotosAntigas(){const up=upMap(),cut=corteFotos();let n=0;
+  Object.keys(D.r||{}).forEach(k=>{if(k>=cut)return;const r=D.r[k];['fi','fo'].forEach(q=>{const img=r&&r[q];if(typeof img==='string'&&up[k+'_'+q]===img.length){delete r[q];n++}})});
+  if(n){aplicando=true;try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}finally{aplicando=false}try{render()}catch(e){}}
+}
+window.verFotosNuvem=async function(){const box=document.getElementById('galOld');if(!box)return;
+  if(!user){box.innerHTML='<div class="mu" style="margin-top:6px">Entre na sua conta (Config) para ver as fotos da nuvem.</div>';return}
+  box.innerHTML='<div class="mu" style="margin-top:6px">Buscando na nuvem…</div>';
+  try{const sn=await F.getDocs(F.query(F.collection(db,'ponto',user.uid,'fotos'),F.where('dia','<',corteFotos())));const L=[];sn.forEach(d=>{const x=d.data();if(x&&x.img&&x.dia)L.push(x)});L.sort((a,b)=>a.dia<b.dia?1:-1);
+    box.innerHTML=L.length?L.map(x=>'<div style="margin-top:8px"><b>'+x.dia.split('-').reverse().join('/')+'</b> <span class="mu">'+(x.q=='fi'?'entrada':'saída')+(x.t?' '+x.t:'')+'</span><br><img src="'+x.img+'" style="width:60%;border-radius:6px;margin-top:4px"></div>').join(''):'<div class="mu" style="margin-top:6px">Nenhuma foto antiga na nuvem.</div>'
+  }catch(e){box.innerHTML='<div class="mu" style="margin-top:6px">Não consegui buscar agora. Confira se as regras novas do Firebase foram publicadas.</div>'}};
 async function enviarFotos(){
   if(!user||semNuvem)return;
   const up=upMap();let mudou=false;
@@ -557,10 +569,11 @@ async function enviarFotos(){
       try{await F.setDoc(F.doc(db,'ponto',user.uid,'fotos',id),{dia:k,q:q,t:r[q+'t']||'',img:img,updatedAt:Date.now()});up[id]=img.length;mudou=true}catch(e){if(mudou)try{localStorage.setItem(FOTOS_UP,JSON.stringify(up))}catch(x){}return}
     }}
   if(mudou)try{localStorage.setItem(FOTOS_UP,JSON.stringify(up))}catch(e){}
+  try{limparFotosAntigas()}catch(e){}
 }
 async function baixarFotos(){
   if(!user||semNuvem)return;
-  try{const sn=await F.getDocs(F.collection(db,'ponto',user.uid,'fotos'));const up=upMap();let n=0;
+  try{const sn=await F.getDocs(F.query(F.collection(db,'ponto',user.uid,'fotos'),F.where('dia','>=',corteFotos())));const up=upMap();let n=0;
     sn.forEach(d=>{const x=d.data();if(!x||!x.dia||!x.img||(x.q!=='fi'&&x.q!=='fo'))return;const r=D.r[x.dia]=D.r[x.dia]||{};if(!r[x.q]){r[x.q]=x.img;if(x.t)r[x.q+'t']=x.t;up[d.id]=x.img.length;n++}});
     if(n){aplicando=true;try{localStorage.setItem('ponto_v1',JSON.stringify(D));localStorage.setItem(FOTOS_UP,JSON.stringify(up))}catch(e){}finally{aplicando=false}try{render()}catch(e){}}
   }catch(e){}
