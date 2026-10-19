@@ -82,7 +82,16 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
  <div class="c"><div class="row"><div><div class="mu">Mês: trabalhadas</div><div class="big" id="rTrab">0h00</div></div><div><div class="mu">Saldo final (extras)</div><div class="big" id="rSaldo">0h00</div></div></div><div class="sub" id="rSys" style="margin-top:6px"></div><div class="sub" id="rVal2"></div></div>
  
 </details>
- <div class="c"><details><summary><b>🏖️ Férias</b> <span class="mu" style="font-size:11px">(não precisa lançar horas)</span></summary><div class="row" style="margin-top:6px"><div><label>De</label><input type="date" id="fa"></div><div><label>Até</label><input type="date" id="fb"></div></div><button id="fbtn" style="width:100%;margin-top:6px" onclick="addFer()">🏖️ Lançar férias</button><div id="ferList" style="margin-top:6px"></div></details></div>
+ <div class="c"><details id="bhD"><summary><b>🏦 Banco de horas</b> <span id="bhS" class="mu" style="font-size:11px"></span></summary>
+ <div class="mu" style="font-size:10px;margin-top:4px">Números do relatório "Vencimento de Banco de Horas" da Elektro, só para controle. O app soma ou desconta o que você fizer depois da data de corte.</div>
+ <div class="row" style="margin-top:6px"><div><label>Data do relatório</label><input type="date" id="bhData"></div><div><label>Saldo total (h:mm)</label><input id="bhSaldo" placeholder="ex.: 75:43"></div></div>
+ <div class="row" style="margin-top:6px"><div><label>Contar o que fizer a partir de</label><input type="date" id="bhCorte"></div></div>
+ <div class="mu" style="font-size:10px;margin-top:8px">Vencimentos (mês · horas)</div>
+ <div id="bhV"></div>
+ <button style="width:100%;margin-top:8px" onclick="salvaBH()">💾 Salvar banco de horas</button>
+ <div id="bhOut" style="margin-top:8px"></div>
+</details></div>
+<div class="c"><details><summary><b>🏖️ Férias</b> <span class="mu" style="font-size:11px">(não precisa lançar horas)</span></summary><div class="row" style="margin-top:6px"><div><label>De</label><input type="date" id="fa"></div><div><label>Até</label><input type="date" id="fb"></div></div><button id="fbtn" style="width:100%;margin-top:6px" onclick="addFer()">🏖️ Lançar férias</button><div id="ferList" style="margin-top:6px"></div></details></div>
  <div class="c"><details id="dmD"><summary><b>📅 Dias do mês</b> <span id="dmS" class="mu" style="font-size:11px"></span></summary>
  <div class="row" style="margin-top:6px;align-items:flex-end"><div><label>Procurar um dia</label><input type="date" id="dmData" onchange="dmBusca()"></div><button class="s" style="flex:0 0 52px" onclick="dmFalta()" title="Dias sem registro" aria-label="Dias sem registro">🔍</button></div>
  <div class="sub" style="text-align:left;margin-top:2px">🔍 Mostrar os dias sem registro neste mês e lançar direto aqui. Para um dia só (sábado, domingo ou feriado), escolha a data em <b>Procurar um dia</b>.</div>
@@ -474,11 +483,38 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='5.4';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='5.6';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
-tick();setInterval(tick,1000);render();lkInit();iaStatus();
+function bhMov(){const c=(D.bh&&D.bh.corte)||'';let t=0;Object.keys(D.r||{}).forEach(k=>{if(k>=c){const x=calc(k,D.r[k]);if(x&&typeof x.ex==='number')t+=x.ex}});return t}
+const sg=m=>(m>0?'+':'')+fmt(m);
+function renderBH(){
+ if(!$('bhD'))return;const b=D.bh;if(!b){$('bhS').textContent='';$('bhOut').innerHTML='';return}
+ const set=(id,v)=>{const e=$(id);if(e&&document.activeElement!==e)e.value=v};
+ set('bhData',b.data||'');set('bhSaldo',b.saldo||'');set('bhCorte',b.corte||'');
+ if(!$('bhV').children.length){let h='';for(let i=0;i<4;i++)h+='<div class="row" style="margin-top:4px"><div><input type="month" id="bhm'+i+'"></div><div><input id="bhh'+i+'" placeholder="h:mm"></div></div>';$('bhV').innerHTML=h}
+ for(let i=0;i<4;i++){const v=(b.venc||[])[i]||['',''];set('bhm'+i,v[0]);set('bhh'+i,v[1])}
+ const base=ph(b.saldo)||0,mov=bhMov(),est=base+mov;
+ $('bhS').textContent='· saldo estimado '+fmt(est);
+ const ven=(b.venc||[]).filter(v=>v[0]&&v[1]).map(v=>'<div class="day">⏳ vence '+mf(v[0])+' <b style="float:right">'+fmt(ph(v[1])||0)+'</b></div>').join('');
+ $('bhOut').innerHTML='<div class="day">Saldo do relatório'+(b.data?' ('+b.data.split('-').reverse().join('/')+')':'')+' <b style="float:right">'+fmt(base)+'</b></div><div class="day">Movimento desde '+(b.corte?b.corte.split('-').reverse().slice(0,2).join('/'):'—')+' <b style="float:right">'+sg(mov)+'</b></div><div class="day"><b>Saldo estimado agora</b> <b style="float:right">'+fmt(est)+'</b></div>'+ven;
+}
+function salvaBH(){const venc=[];for(let i=0;i<4;i++){const m=$('bhm'+i).value,h=$('bhh'+i).value.trim();if(m&&h)venc.push([m,h])}
+ const sd=$('bhSaldo').value.trim();if(sd&&ph(sd)==null)return alert('Saldo inválido. Use o formato 75:43.');
+ D.bh={data:$('bhData').value,saldo:sd,corte:$('bhCorte').value,venc};gravar();render();alert('Banco de horas salvo')}
+const _render0=render;render=function(){_render0();try{renderBH()}catch(e){}};
+function semear(){
+ try{if(localStorage.getItem('ponto_seed_1019'))return}catch(e){return}
+ const S={'2026-10-01':['07:19','16:33'],'2026-10-02':['07:20','17:00'],'2026-10-05':['07:18','15:07'],'2026-10-06':['07:23','15:20'],'2026-10-07':['07:03','17:01'],'2026-10-08':['07:18','16:22'],'2026-10-09':['07:17','16:02'],'2026-10-13':['07:06','17:02'],'2026-10-14':['07:14','17:04'],'2026-10-15':['07:19','16:53'],'2026-10-16':['07:03','17:10'],'2026-10-17':['06:00','11:25']};
+ const falta=Object.keys(S).filter(k=>{const r=D.r[k];return !r||(!r.i&&!r.o&&!r.folga)});
+ try{localStorage.setItem('ponto_seed_1019','1')}catch(e){}
+ if(!falta.length)return;
+ if(!confirm('Preencher '+falta.length+' dias de outubro (01 a 17/10) com as batidas do sistema da Elektro? Dias que já têm horário não são mexidos.'))return;
+ falta.forEach(k=>{D.r[k]=Object.assign({},D.r[k]||{},{i:S[k][0],o:S[k][1]})});
+ gravar();render();alert('Pronto! '+falta.length+' dias preenchidos.');
+}
+tick();setInterval(tick,1000);render();lkInit();iaStatus();setTimeout(semear,600);if(!D.bh){D.bh={data:'2026-10-19',saldo:'75:43',corte:'2026-10-17',venc:[['2026-12','10:49'],['2027-01','7:48'],['2027-02','13:31']]};gravar()}
 document.addEventListener('click',function(e){const t=e.target;if(t&&t.tagName=='INPUT'&&(t.type=='date'||t.type=='month')&&t.showPicker&&!t.disabled){try{t.showPicker()}catch(x){}}});
 try{if(!$('dmData').value)$('dmData').value=hoje()}catch(e){}
 </script>
@@ -497,7 +533,7 @@ function mostra(){const o=N('nuOut'),i=N('nuIn');if(!o||!i)return;if(user){const
 window.irNuvem=function(){aba(3);const c=N('nuvCard');if(c)c.scrollIntoView({block:'start'})};
 const ok=()=>ind('ok','Sincronizado com a nuvem');
 function temDados(){return Object.keys(D.r||{}).length>0||Object.keys(D.hol||{}).length>0||(D.fer||[]).length>0||Object.keys(D.sys||{}).length>0}
-function mesclar(rem){aplicando=true;try{D.r=D.r||{};Object.keys(rem.r||{}).forEach(k=>{D.r[k]=Object.assign({},rem.r[k],D.r[k]||{})});D.cfg=Object.assign({},rem.cfg||{},D.cfg||{});D.sys=Object.assign({},rem.sys||{},D.sys||{});D.hol=Object.assign({},rem.hol||{},D.hol||{});D.fer=D.fer||[];(rem.fer||[]).forEach(f=>{if(!D.fer.some(x=>x.a==f.a&&x.b==f.b))D.fer.push(f)});D.fer.sort((x,y)=>x.a<y.a?-1:1);try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}}finally{aplicando=false}try{render()}catch(e){}}
+function mesclar(rem){aplicando=true;try{D.r=D.r||{};Object.keys(rem.r||{}).forEach(k=>{D.r[k]=Object.assign({},rem.r[k],D.r[k]||{})});D.cfg=Object.assign({},rem.cfg||{},D.cfg||{});D.sys=Object.assign({},rem.sys||{},D.sys||{});if(!D.bh&&rem.bh)D.bh=rem.bh;D.hol=Object.assign({},rem.hol||{},D.hol||{});D.fer=D.fer||[];(rem.fer||[]).forEach(f=>{if(!D.fer.some(x=>x.a==f.a&&x.b==f.b))D.fer.push(f)});D.fer.sort((x,y)=>x.a<y.a?-1:1);try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}}finally{aplicando=false}try{render()}catch(e){}}
 function trocar(rem){aplicando=true;try{const loc=D.r||{};Object.keys(rem.r||{}).forEach(k=>{const l=loc[k];if(l){if(l.fi)rem.r[k].fi=l.fi;if(l.fo)rem.r[k].fo=l.fo}});rem.sys=rem.sys||{};rem.fer=rem.fer||[];rem.cfg=rem.cfg||D.cfg;D=rem;try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}}finally{aplicando=false}try{render()}catch(e){}}
 async function enviar(){
   const str=JSON.stringify(D,(k,v)=>k[0]=='f'&&k.length<=3&&typeof v=='string'&&v.length>50?undefined:v);
