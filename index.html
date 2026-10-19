@@ -59,7 +59,8 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
  <div id="lkPad" style="display:grid;grid-template-columns:repeat(3,62px);gap:8px;margin-top:6px"></div>
  <button class="s" style="margin-top:6px;padding:4px 10px;font-size:10.5px" onclick="lkEsqueci()">Esqueci o PIN</button>
 </div>
-<div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button><button onclick="aba(4)" title="Holerite" aria-label="Holerite">🧾</button><button class="ic" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app">🔄</button><button class="ic" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px"><div><div style="font-size:16px;font-weight:800;line-height:1.1">⏱️ Controle de Ponto</div><div class="mu" style="font-size:10px">Registre e acompanhe suas horas</div></div><button id="verBtn" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app" style="width:auto;flex:none;padding:5px 10px;background:transparent;color:var(--pr);border:1.5px solid var(--pr);border-radius:10px;font-weight:700">🔄 v<span id="ver2"></span></button></div>
+<div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button><button onclick="aba(4)" title="Holerite" aria-label="Holerite">🧾</button><button class="ic" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button></div>
 
 <div class="pg on">
  <div class="c" id="lemb" style="display:none;border-color:var(--rd)"></div>
@@ -438,7 +439,7 @@ function render(){
  if(!$('mes').value)$('mes').value=ds.slice(0,7);
  $('cpm').value=D.cfg.pm||3;if(document.activeElement!==$('cpi'))$('cpi').value=D.cfg.pi||'';$('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
  const m=$('mes').value;let tw=0,te=0,h='',g='',hh='';const vhd=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,rs=e=>vhd>0&&e>0?' · <b>R$ '+(vhd*e/60).toFixed(2).replace('.',',')+'</b>':'';
- Object.keys(D.r).sort().reverse().forEach(k=>{
+ Object.keys(D.r).sort().forEach(k=>{
   const x=D.r[k],dd=new Date(k+'T12:00'),nome=dd.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
   if(x.fi||x.fo)g+=`<div style="margin-top:8px"><b>${nome}</b> <span class="mu">${x.i?'entrada '+x.i:''} ${x.o?'· saída '+x.o:''}</span><div class="ph" style="margin-top:4px">`+
    (x.fi?`<div><img src="${x.fi}" onclick="ver('${k}','fi')"><div class="sub">entrada${x.fit?' '+x.fit:''}</div></div>`:'')+(x.fo?`<div><img src="${x.fo}" onclick="ver('${k}','fo')"><div class="sub">saída${x.fot?' '+x.fot:''}</div></div>`:'')+`</div></div>`;
@@ -470,7 +471,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='4.7';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;
+const VERSAO='4.8';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
