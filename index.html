@@ -59,8 +59,7 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
  <div id="lkPad" style="display:grid;grid-template-columns:repeat(3,62px);gap:8px;margin-top:6px"></div>
  <button class="s" style="margin-top:6px;padding:4px 10px;font-size:10.5px" onclick="lkEsqueci()">Esqueci o PIN</button>
 </div>
-<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px"><div><div style="font-size:16px;font-weight:800;line-height:1.1">⏱️ Controle de Ponto</div><div class="mu" style="font-size:10px">Registre e acompanhe suas horas</div></div><button id="verBtn" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app" style="width:auto;flex:none;padding:5px 10px;background:transparent;color:var(--pr);border:1.5px solid var(--pr);border-radius:10px;font-weight:700">🔄 v<span id="ver2"></span></button></div>
-<div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button><button onclick="aba(4)" title="Holerite" aria-label="Holerite">🧾</button><button class="ic" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button></div>
+<div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button><button onclick="aba(4)" title="Holerite" aria-label="Holerite">🧾</button><button id="verBtn" class="ic" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app" style="width:auto;flex:none;padding:5px 6px;font-size:10px;font-weight:700;background:transparent;color:var(--pr);border:1px solid var(--pr)">🔄 v<span id="ver2"></span></button><button class="ic" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button></div>
 
 <div class="pg on">
  <div class="c" id="lemb" style="display:none;border-color:var(--rd)"></div>
@@ -171,7 +170,7 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
   <div class="row" style="margin-top:4px"><button onclick="exportaArq()" title="Exportar arquivo" aria-label="Exportar arquivo">⬇️ Exportar</button><button class="s" onclick="$('fimp').click()" title="Importar arquivo" aria-label="Importar arquivo">⬆️ Importar</button></div>
   <input type="file" id="fimp" style="display:none" onchange="importaArq(this)"></div>
 </div>
-<div class="ft">© 2026 Luis Ricardo de Almeida Siqueira · Desenvolvedor · Todos os direitos reservados<br>Controle de Ponto · versão <span id="ver"></span></div>
+<div class="ft">© 2026 Luis Ricardo de Almeida Siqueira · Desenvolvedor · Todos os direitos reservados<span id="ver" style="display:none"></span></div>
 <input type="file" accept="image/*" capture="environment" id="ff" style="display:none">
 <div id="zoom" onclick="this.style.display='none'"><img id="zi"><button id="zdel" onclick="event.stopPropagation();delFoto()">🗑 Apagar foto</button></div>
 
@@ -188,7 +187,7 @@ function delFer(i){if(confirm('Apagar estas férias?')){ferEd=null;$('fbtn').tex
 function nUtil(ds){const d=new Date(ds+'T12:00'),n=d.getDate();let c=0;for(let i=1;i<=n;i++){const w=new Date(d.getFullYear(),d.getMonth(),i,12).getDay();if(w!=0&&w!=6)c++}const w0=d.getDay();return(w0==0||w0==6)?0:c}
 function mesAnt(ds){const d=new Date(ds+'T12:00');d.setDate(1);d.setMonth(d.getMonth()-1);return d.getFullYear()+'-'+p2(d.getMonth()+1)}
 function irMesAnt(){$('mes').value=mesAnt(hoje());aba(1)}
-function copiarMes(){const m=$('mes').value,L=[];Object.keys(D.r).sort().forEach(k=>{if(!k.startsWith(m))return;const x=D.r[k],nome=new Date(k+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');L.push(nome+': '+(x.folga?'FOLGA':(x.i||'--:--')+' às '+(x.o||'--:--')))});D.fer.filter(f=>f.a.slice(0,7)<=m&&f.b.slice(0,7)>=m).forEach(f=>L.push('FÉRIAS: '+dm(f.a)+' a '+dm(f.b)));if(!L.length){alert('Nenhum registro neste mês.');return}const t='Horários de '+m.split('-').reverse().join('/')+'\n'+L.join('\n');navigator.clipboard.writeText(t).then(()=>alert('Horários copiados! É só colar onde for acertar o ponto.'))}
+function copiarMes(){const m=$('mes').value,L=[];Object.keys(D.r).sort().forEach(k=>{if(!k.startsWith(m))return;const x=D.r[k],nome=new Date(k+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');L.push(nome+': '+(x.folga?'FOLGA':(x.i||'--:--')+' às '+(x.o||'--:--')))});FER().filter(f=>f.a.slice(0,7)<=m&&f.b.slice(0,7)>=m).forEach(f=>L.push('FÉRIAS: '+dm(f.a)+' a '+dm(f.b)));if(!L.length){alert('Nenhum registro neste mês.');return}const t='Horários de '+m.split('-').reverse().join('/')+'\n'+L.join('\n');navigator.clipboard.writeText(t).then(()=>alert('Horários copiados! É só colar onde for acertar o ponto.'))}
 async function restaurar(){let t='';try{t=await navigator.clipboard.readText()}catch(e){}let b=null;try{b=JSON.parse(t)}catch(e){}if(!b||!b.r){t=prompt('Cole aqui o backup que você copiou com 📋:')||'';try{b=JSON.parse(t)}catch(e){b=null}}if(!b||!b.r){alert('Não encontrei um backup válido. Copie de novo com 📋 no outro celular e tente outra vez.');return}const n=Object.keys(b.r).length;if(!confirm('Restaurar '+n+' dia(s) de registro? Os dados do backup são somados aos deste celular (as fotos daqui ficam).'))return;Object.keys(b.r).forEach(k=>{D.r[k]=Object.assign({},D.r[k]||{},b.r[k])});D.cfg=Object.assign({},D.cfg,b.cfg||{});D.sys=Object.assign({},D.sys,b.sys||{});D.hol=Object.assign({},H(),b.hol||{});(b.fer||[]).forEach(f=>{if(!D.fer.some(x=>x.a==f.a&&x.b==f.b))D.fer.push(f)});D.fer.sort((x,y)=>x.a<y.a?-1:1);gravar();render();alert('Backup restaurado!')}
 function proxUtil(n){const h=new Date(),h0=new Date(h.getFullYear(),h.getMonth(),h.getDate());for(let o=0;o<4;o++){let c=0;for(let d=1;d<=31;d++){const x=new Date(h.getFullYear(),h.getMonth()+o,d);if(x.getMonth()!=(h.getMonth()+o)%12)break;if(x.getDay()!=0&&x.getDay()!=6&&++c==n){if(x>=h0)return x;break}}}return h0}
 function baixarIcs(){const z=x=>x.getFullYear()+p2(x.getMonth()+1)+p2(x.getDate()),st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',ev=(n,t,desc)=>{const d=z(proxUtil(n));return ['BEGIN:VEVENT','UID:ponto-'+n+'o-dia-util@controle-de-ponto','DTSTAMP:'+st,'DTSTART:'+d+'T110000Z','DTEND:'+d+'T113000Z','RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS='+n,'SUMMARY:'+t,'DESCRIPTION:'+desc,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+t,'TRIGGER:PT0M','END:VALARM','END:VEVENT']};const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Controle de Ponto//PT-BR','CALSCALE:GREGORIAN'].concat(ev(2,'🔔 Acertar o ponto (2º dia útil)','Acertar o ponto do mês anterior. Abra o app Controle de Ponto, aba Mês, e use Copiar horários do mês.'),ev(3,'🔔 ÚLTIMO DIA: acertar o ponto (3º dia útil)','Último dia para acertar o ponto do mês anterior.'),['END:VCALENDAR']);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([L.join('\r\n')],{type:'text/calendar'}));a.download='lembretes-ponto.ics';document.body.appendChild(a);a.click();a.remove();alert('Arquivo baixado. Abra-o (em Downloads ou na notificação) e escolha adicionar ao calendário. Os lembretes são às 8h, no 2º e no 3º dia útil (sem contar feriados).')}
@@ -410,7 +409,10 @@ function limpaSys(){if(confirm('Limpar extras do sistema deste mês?')){delete D
 function limparForm(){['fd','fiT','foT','fl','fe','fg'].forEach(i=>$(i).value='')}
 function editar(ds){const r=D.r[ds];$('fd').value=ds;$('fiT').value=r.i||'';$('foT').value=r.o||'';$('fl').value=r.l!=null&&r.l!==''?hmStr(+r.l):'';$('fe').value=r.e||'';$('fg').value=r.folga?'1':'';aba(1);$('fdet').open=true;scrollTo(0,0)}
 function nomeDia(k){return new Date(k+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','')}
-function emFerias(k){return (D.fer||[]).some(f=>k>=f.a&&k<=f.b)}
+var FN=[];try{FN=JSON.parse(localStorage.getItem('ponto_ferias_nuvem')||'[]')}catch(e){FN=[]}
+function FER(){return (D.fer||[]).concat(FN)}
+function FNhtml(){return FN.map(f=>'<div class="day">☁️ '+f.a.split('-').reverse().join('/')+' a '+f.b.split('-').reverse().join('/')+' <span class="mu">do app de Férias'+(f.st&&f.st!='aprovada'?' · '+f.st:'')+'</span></div>').join('')}
+function emFerias(k){return FER().some(f=>k>=f.a&&k<=f.b)}
 function lancarDia(k){aba(1);$('fd').value=k;const r=D.r[k]||{};$('fiT').value=r.i||'';$('foT').value=r.o||'';$('fl').value=r.l!=null&&r.l!==''?hmStr(+r.l):'';$('fe').value=r.e||'';$('fg').value=r.folga?'1':'';$('fdet').open=true;scrollTo(0,0)}
 let dmModo='dia';
 function dmLinha(k){const r=D.r[k]||{};return '<div class="day" style="display:flex;gap:4px;align-items:center"><b style="flex:0 0 78px;font-size:12px">'+nomeDia(k)+'</b><input id="dmI_'+k+'" inputmode="numeric" maxlength="5" placeholder="entrada" value="'+(r.i||'')+'" oninput="mask(this)" style="min-width:0;padding:6px"><input id="dmO_'+k+'" inputmode="numeric" maxlength="5" placeholder="saída" value="'+(r.o||'')+'" oninput="mask(this)" style="min-width:0;padding:6px"><button style="flex:0 0 42px;padding:7px 0" onclick="dmSalva(\''+k+'\')" title="Salvar este dia" aria-label="Salvar este dia">💾</button></div>'}
@@ -434,7 +436,7 @@ function render(){
  const ds=hoje(),r=D.r[ds]||{};
  $('hi').value=r.i||'';$('ho').value=r.o||'';{const dia=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');$('lbI').textContent='Entrada · '+dia;$('lbO').textContent='Saída · '+dia}$('hi').disabled=$('ho').disabled=!!((r.i||r.o)&&!edit&&!r.folga);
  {const n=nUtil(ds),b=$('lemb'),ma=mesAnt(ds).split('-').reverse().join('/');if(n==2||n==3){b.style.display='';b.innerHTML='🔔 <b>Hoje é o '+n+'º dia útil.</b> '+(n==3?'Último dia para acertar o ponto de ':'Acerte o ponto de ')+'<b>'+ma+'</b>.<button style="width:100%;margin-top:6px" onclick="irMesAnt()">📋 Ver horários de '+ma+'</button>'}else b.style.display='none'}
- const fh=D.fer.find(f=>ds>=f.a&&ds<=f.b);$('fgst').textContent=fh?'🏖️ Você está de férias ('+dm(fh.a)+' a '+dm(fh.b)+') · não precisa lançar horas':(r.folga?'🌴 Hoje está lançado como folga (compensa a jornada)':'');
+ const fh=FER().find(f=>ds>=f.a&&ds<=f.b);$('fgst').textContent=fh?'🏖️ Você está de férias ('+dm(fh.a)+' a '+dm(fh.b)+') · não precisa lançar horas':(r.folga?'🌴 Hoje está lançado como folga (compensa a jornada)':'');
  $('fhoje').textContent='Fotos de hoje: entrada '+(r.fi?'✅':'—')+' · saída '+(r.fo?'✅':'—');
  if(!$('mes').value)$('mes').value=ds.slice(0,7);
  $('cpm').value=D.cfg.pm||3;if(document.activeElement!==$('cpi'))$('cpi').value=D.cfg.pi||'';$('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
@@ -450,8 +452,8 @@ function render(){
    (c?`<br>${x.folga?'':'trabalhou <b>'+fmt(c.w)+'</b> · '}${x.folga?'compensa':'extra'} <b class="${c.ex<0?'neg':''}">${fmt(c.ex)}</b>${rs(c.ex)}${x.e?' <span class="mu">(comprovante)</span>':''}`:' <span class="mu">incompleto</span>')+
    `<div class="row" style="margin-top:4px"><button class="s" style="padding:4px" onclick="editar('${k}')">Editar</button><button class="s" style="padding:4px" onclick="foto('fi','${k}')">📷 Ent.</button><button class="s" style="padding:4px" onclick="foto('fo','${k}')">📷 Saí.</button><button class="s" style="padding:4px;color:var(--rd);border-color:var(--rd)" onclick="apagar('${k}')">🗑</button></div></div>`;
  });
- const fm=D.fer.filter(f=>f.a.slice(0,7)<=m&&f.b.slice(0,7)>=m).map(f=>`<div class="day">🏖️ <b>Férias</b> ${dm(f.a)} a ${dm(f.b)} · <span class="mu">sem horas a lançar</span></div>`).join('');
- $('ferList').innerHTML=D.fer.map((f,i)=>`<div class="day">🏖️ ${f.a.split('-').reverse().join('/')} a ${f.b.split('-').reverse().join('/')} <span style="float:right;display:flex;gap:6px"><button class="s" style="padding:2px 8px" onclick="editFer(${i})" aria-label="Editar férias">✏️</button><button class="s" style="padding:2px 8px;color:var(--rd);border-color:var(--rd)" onclick="delFer(${i})" aria-label="Apagar férias">🗑</button></span></div>`).join('')||'<span class="mu">Nenhuma férias lançada.</span>';
+ const fm=FER().filter(f=>f.a.slice(0,7)<=m&&f.b.slice(0,7)>=m).map(f=>`<div class="day">🏖️ <b>Férias</b>${f.st&&f.st!='aprovada'?' ('+f.st+')':''} ${dm(f.a)} a ${dm(f.b)} · <span class="mu">sem horas a lançar</span></div>`).join('');
+ $('ferList').innerHTML=(D.fer.map((f,i)=>`<div class="day">🏖️ ${f.a.split('-').reverse().join('/')} a ${f.b.split('-').reverse().join('/')} <span style="float:right;display:flex;gap:6px"><button class="s" style="padding:2px 8px" onclick="editFer(${i})" aria-label="Editar férias">✏️</button><button class="s" style="padding:2px 8px;color:var(--rd);border-color:var(--rd)" onclick="delFer(${i})" aria-label="Apagar férias">🗑</button></span></div>`).join('')+FNhtml())||'<span class="mu">Nenhuma férias lançada.</span>';
  hh=fm+hh;h=fm+h;
  {const n=Object.keys(D.r).filter(k=>k.startsWith(m)).length;$('dmS').textContent=n?'· '+n+' '+(n>1?'dias':'dia')+' · extras '+fmt(te):''}
  $('listaHoje').innerHTML=hh||'<span class="mu">Nenhum registro neste mês.</span>';
@@ -471,7 +473,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='4.8';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='5.1';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
@@ -538,16 +540,29 @@ async function liberado(u){
   try{const x=await F.getDoc(F.doc(db,'usuarios',u.uid));if(x.exists()){const d=x.data()||{},seen=Number(d.lastLoginAt||d.updatedAt||0);if(d.veterano===true||(!d.pending&&seen&&seen<RELEASE_TS))return true}}catch(e){}
   const l=await F.getDoc(F.doc(db,'liberados',u.uid));return l.exists();
 }
+let offFer=null;
+function fimData(a,n){return new Date(Date.parse(a+'T00:00:00Z')+(n-1)*864e5).toISOString().slice(0,10)}
+function pararFerias(){try{offFer&&offFer()}catch(e){}offFer=null}
+function ouvirFerias(u){
+  pararFerias();
+  const A={},B={};
+  const junta=()=>{const L=[],v={};[A,B].forEach(M=>Object.keys(M).forEach(id=>{if(v[id])return;v[id]=1;const r=M[id];if(r.deleted===true||r.status==='recusada')return;
+    [[r.start,r.days],[r.start2,r.days2]].forEach(p=>{if(p[0]&&Number(p[1])>0)L.push({a:p[0],b:fimData(p[0],Number(p[1])),st:r.status||'pendente'})})}));
+    L.sort((x,y)=>x.a<y.a?-1:1);FN=L;try{localStorage.setItem('ponto_ferias_nuvem',JSON.stringify(L))}catch(e){}try{render()}catch(e){}};
+  const ouv=(campo,valor,M)=>{try{return F.onSnapshot(F.query(F.collection(db,'ferias'),F.where(campo,'==',valor)),s=>{Object.keys(M).forEach(k=>delete M[k]);s.docs.forEach(d=>{if(d.id!=='config')M[d.id]=d.data()});junta()},()=>{})}catch(e){return null}};
+  const o1=ouv('ownerUid',u.uid,A),o2=u.email?ouv('ownerEmail',u.email,B):null;
+  offFer=()=>{o1&&o1();o2&&o2()};
+}
 async function aoMudar(u){
   if(u&&u.isAnonymous){try{await F.signOut(auth)}catch(e){}return}
-  if(!u){user=null;semNuvem=false;mostra();ind('sync','Entre para guardar seus horários na nuvem.');return}
+  if(!u){user=null;semNuvem=false;pararFerias();FN=[];try{localStorage.removeItem('ponto_ferias_nuvem')}catch(e){}try{render()}catch(e){}mostra();ind('sync','Entre para guardar seus horários na nuvem.');return}
   try{
     const b=await F.getDoc(F.doc(db,'bloqueados',u.uid));
     if(b.exists()){await F.signOut(auth);msg('Seu acesso foi removido. Fale com o responsável.',1);return}
     if(!(await liberado(u))){
       try{await F.setDoc(F.doc(db,'usuarios',u.uid),{uid:u.uid,email:u.email||'',name:nomeNovo||u.displayName||'',pending:true,requestedAt:Date.now(),updatedAt:Date.now()},{merge:true})}catch(e){}
       await F.signOut(auth);msg('Cadastro recebido! Aguarde a liberação do responsável. Depois é só entrar com e-mail e senha.');return}
-    user=u;mostra();msg('');
+    user=u;mostra();msg('');ouvirFerias(u);
     let m=null;try{m=await F.getDoc(F.doc(db,'ponto_sem_nuvem',u.uid))}catch(e){}
     semNuvem=!!(m&&m.exists());marcaPor=semNuvem?String((m.data()||{}).by||''):'';botoes();
     if(semNuvem){try{await F.deleteDoc(F.doc(db,'ponto',u.uid))}catch(e){}ind('off',marcaPor=='pessoa'?'Você parou de guardar na nuvem. Seus horários ficam só neste celular.':'O desenvolvedor desativou a nuvem para você. Seus horários ficam só neste celular.');return}
