@@ -70,6 +70,7 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
   <span id="nuvInd" class="fbi sync" onclick="irNuvem()" title="Nuvem" aria-label="Nuvem" style="position:absolute;top:8px;right:8px">⏳</span>
   <div class="clock" id="clk">--:--:--</div><div class="sub" id="dt"></div>
   <div class="row" style="margin-top:8px"><button onclick="bater('i')">ENTRADA</button><button class="d" onclick="bater('o')">SAÍDA</button></div>
+  <div id="saidaPrev" style="display:none;margin-top:8px;padding:7px 8px;border:1px solid var(--pr);border-radius:8px;text-align:center"></div>
   <div id="resumoHoje" style="display:none;margin-top:8px;align-items:center;justify-content:space-between;gap:8px"></div><div id="manualBox"><div class="sub" style="margin-top:8px">Ou digite o horário na mão (se não bateu o ponto):</div><div class="row" style="margin-top:4px"><div><label id="lbI">Entrada</label><div class="tw"><input id="hi" inputmode="numeric" maxlength="5" placeholder="ex.: 0730" oninput="mask(this)" onchange="manual()"><button class="x" onclick="limpa('hi')" title="Limpar entrada" aria-label="Limpar entrada">✕</button></div></div><div><label id="lbO">Saída</label><div class="tw"><input id="ho" inputmode="numeric" maxlength="5" placeholder="ex.: 1120" oninput="mask(this)" onchange="manual()"><button class="x" onclick="limpa('ho')" title="Limpar saída" aria-label="Limpar saída">✕</button></div></div></div><div class="row" style="margin-top:6px"><button onclick="salvarHoje()" title="Salvar" aria-label="Salvar">💾</button><button class="s" onclick="editarHoje()" title="Editar" aria-label="Editar">✏️</button><button class="s" onclick="folgaHoje()" title="Lançar ou tirar folga de hoje" aria-label="Lançar ou tirar folga de hoje">🌴</button></div><div class="sub" style="margin-top:4px">💾 Salvar · ✏️ Editar · 🌴 Lançar/tirar folga de hoje</div><div class="sub" id="fgst"></div><div class="sub" id="sv" style="color:var(--pr)">✓ Tudo é salvo automaticamente</div></div>
  </div>
  <div class="c">
@@ -485,10 +486,29 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='6.3';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='6.4';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
-function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}
+function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});try{saidaPrev()}catch(e){}}
+let spAvisou='';
+function horaSaida(ds){const r=D.r[ds]||{};if(!r.i||r.folga||fimSem(ds)||emFerias(ds))return null;const j=hm(D.cfg.s)-hm(D.cfg.e)-D.cfg.l,l=r.l!=null&&r.l!==''?+r.l:D.cfg.l;return hm(r.i)+j+l}
+const hhmm=m=>{m=((m%1440)+1440)%1440;return p2(Math.floor(m/60))+':'+p2(m%60)};
+function saidaPrev(){const el=$('saidaPrev');if(!el)return;const ds=hoje(),r=D.r[ds]||{},sai=horaSaida(ds);
+ if(sai==null||r.o){el.style.display='none';return}
+ const n=new Date(),falta=sai-(n.getHours()*60+n.getMinutes());let cor='var(--pr)',t;
+ if(falta>30)t='Faltam <b>'+fmt(falta)+'</b> para sair';
+ else if(falta>0){cor='#e67e22';t='⏳ Faltam só <b>'+falta+' min</b>. Já pode ir se arrumando'}
+ else if(falta==0){cor='#e67e22';t='✅ <b>Hora de sair!</b>'}
+ else{cor='var(--rd)';t='⚠️ Já passou <b>'+fmt(-falta)+'</b> do horário (está fazendo hora extra)'}
+ el.style.display='';el.style.borderColor=cor;
+ el.innerHTML='<div style="font-size:12px">🕓 Entrou às <b>'+r.i+'</b> · Saída prevista: <b style="font-size:16px;color:'+cor+'">'+hhmm(sai)+'</b></div><div style="margin-top:2px;color:'+cor+'">'+t+'</div><button class="s" style="margin-top:6px;padding:4px 10px" onclick="lembreteSaida()" title="Me avisar na hora de sair" aria-label="Me avisar na hora de sair">⏰ Me avisar na hora de sair</button>';
+ if(falta<=0&&falta>-2&&spAvisou!==ds+r.i){spAvisou=ds+r.i;try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}try{if(window.Notification&&Notification.permission==='granted')new Notification('Controle de Ponto',{body:'Hora de sair! Saída prevista: '+hhmm(sai),icon:'icon-192.png'})}catch(e){}}}
+function lembreteSaida(){const ds=hoje(),sai=horaSaida(ds);if(sai==null)return alert('Bata a entrada primeiro.');
+ try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}
+ const d=ds.replace(/-/g,''),t=hhmm(sai).replace(':',''),fim=hhmm(sai+5).replace(':',''),st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+ const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Controle de Ponto//PT-BR','BEGIN:VEVENT','UID:saida-'+d+'@controle-de-ponto','DTSTAMP:'+st,'DTSTART:'+d+'T'+t+'00','DTEND:'+d+'T'+fim+'00','SUMMARY:🕓 Hora de sair ('+hhmm(sai)+')','DESCRIPTION:Saída prevista pelo Controle de Ponto. Não esqueça de bater o ponto!','BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Faltam 10 minutos para sair','TRIGGER:-PT10M','END:VALARM','BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Hora de sair!','TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'];
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([L.join('\r\n')],{type:'text/calendar'}));a.download='hora-de-sair.ics';document.body.appendChild(a);a.click();a.remove();
+ alert('Abra o arquivo baixado e adicione ao calendário. O celular avisa 10 minutos antes e na hora de sair ('+hhmm(sai)+'), mesmo com o app fechado.')}
 function bhMov(){const c=(D.bh&&D.bh.corte)||'';let t=0;Object.keys(D.r||{}).forEach(k=>{if(k>=c){const x=calc(k,D.r[k]);if(x&&typeof x.ex==='number'&&x.ex>0)t+=x.ex}});return t}
 const sg=m=>(m>0?'+':'')+fmt(m);
 function renderBH(){
