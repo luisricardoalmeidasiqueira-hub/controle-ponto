@@ -121,8 +121,10 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
 <div class="c" id="lista"></div>
 </div>
 
-<div class="pg"><div class="c"><b>📷 Provas do ponto</b> <span class="mu" style="font-size:11px">☁️ guardadas só na nuvem</span><div class="mu" style="font-size:11px;margin:2px 0 6px">As fotos não ficam no celular: assim que sobem para a nuvem, saem daqui. Escolha o mês para consultar e toque na foto para ampliar.</div>
- <div class="row" style="align-items:flex-end"><div><label>Mês das fotos</label><input type="month" id="galMes" onchange="verFotosNuvem()"></div><button class="s" style="flex:0 0 52px" onclick="verFotosNuvem()" title="Buscar fotos na nuvem" aria-label="Buscar fotos na nuvem">🔄</button></div>
+<div class="pg"><div class="c"><b>📷 Provas do ponto</b> <span class="mu" style="font-size:11px">☁️ guardadas só na nuvem</span><div class="mu" style="font-size:11px;margin:2px 0 6px">As fotos não ficam no celular. Escolha o mês nas setinhas e toque na ☁️ para ver.</div>
+ <input type="hidden" id="galMes">
+ <div style="display:flex;align-items:center;gap:6px"><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="galPasso(-1)" title="Mês anterior" aria-label="Mês anterior">◀</button><b id="galMesTx" style="flex:1;text-align:center;font-size:13px"></b><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="galPasso(1)" title="Próximo mês" aria-label="Próximo mês">▶</button></div>
+ <button id="galBtn" style="width:100%;margin-top:6px;font-size:13px" onclick="galAbrir()" title="Ver fotos na nuvem" aria-label="Ver fotos na nuvem">☁️ Ver fotos na nuvem</button>
  <div id="galOld"></div><div id="gal" style="margin-top:8px"></div></div></div>
 
 <div class="pg"><div class="c" id="nuvCard"><b>☁️ Nuvem</b> <span class="mu" id="nuvTxt" style="font-size:11px"></span>
@@ -215,7 +217,12 @@ const alm=v=>{v=String(v||'').trim();if(!v)return null;if(!/[:h]/.test(v))return
 const fmt=m=>{const s=m<0?'-':'';m=Math.abs(Math.round(m));return s+Math.floor(m/60)+'h'+p2(m%60)};
 const parseHM=t=>{if(!t)return null;t=t.trim().replace('h',':');const n=t.startsWith('-');t=t.replace('-','');const[a,b]=t.split(':');const v=(+a||0)*60+(+b||0);return n?-v:v};
 const fimSem=ds=>{const w=new Date(ds+'T12:00').getDay();return w==0||w==6};
-function aba(n){document.querySelectorAll('.pg').forEach((p,i)=>p.classList.toggle('on',i==n));document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i==n));render();if(n==2){try{if(!$('galMes').value)$('galMes').value=hoje().slice(0,7);window.verFotosNuvem&&window.verFotosNuvem()}catch(e){}}}
+function aba(n){document.querySelectorAll('.pg').forEach((p,i)=>p.classList.toggle('on',i==n));document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i==n));render();if(n==2){try{if(!$('galMes').value)$('galMes').value=hoje().slice(0,7);galTx()}catch(e){}}}
+let galAberta=false;
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+function galTx(){const m=$('galMes').value||hoje().slice(0,7),a=m.split('-');$('galMesTx').textContent=MESES[+a[1]-1]+' de '+a[0];$('galBtn').textContent=galAberta?'☁️ Esconder as fotos':'☁️ Ver fotos de '+MESES[+a[1]-1];$('galBtn').className=galAberta?'s':''}
+function galPasso(n){const m=$('galMes').value||hoje().slice(0,7),a=m.split('-'),d=new Date(+a[0],+a[1]-1+n,1),nv=d.getFullYear()+'-'+p2(d.getMonth()+1);if(nv>hoje().slice(0,7))return;$('galMes').value=nv;galTx();if(galAberta)window.verFotosNuvem&&window.verFotosNuvem()}
+function galAbrir(){galAberta=!galAberta;galTx();if(galAberta)window.verFotosNuvem&&window.verFotosNuvem();else $('galOld').innerHTML=''}
 function calc(ds,r){
  if(r.folga){const j=hm(D.cfg.s)-hm(D.cfg.e)-D.cfg.l;return{w:0,ex:-j}}
  if(!r.i||!r.o)return null;
@@ -489,7 +496,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='6.5';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='6.6';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});try{saidaPrev()}catch(e){}}
