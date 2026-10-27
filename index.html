@@ -52,7 +52,10 @@ input[type=time],input[type=date],input[type=month]{height:30px;min-height:30px}
 label{font-size:9.5px}.row{gap:4px}details summary{font-size:11.5px}
 .kp{height:50px;font-size:19px;background:var(--card);color:var(--tx);border:1px solid var(--bd)}#lock button.kp:active{background:var(--pr);color:#fff}
 input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-width:0}
-#fa,#fb,#dmData{-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;overflow:hidden;padding-right:4px}
+#fa,#fb,#dmData,#sysData,#fd,#dmes,#hmr{height:30px;min-height:30px;-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;overflow:hidden;padding-right:4px}
+input[type=date],input[type=month],input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;height:30px;min-height:30px;line-height:1.2;overflow:hidden;padding-top:0;padding-bottom:0;box-sizing:border-box}
+input::-webkit-date-and-time-value{text-align:left;margin:0}
+select{height:30px!important;min-height:30px;padding:0 5px!important;font-size:12.5px!important}
 #bhD input{-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:38px;line-height:1.2;overflow:hidden;padding-top:0;padding-bottom:0}#bhD .row{align-items:end;gap:8px;margin-top:8px}#bhD .row>div{min-width:0;overflow:hidden}
 </style></head><body>
 <div id="lock" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:30;flex-direction:column;align-items:center;justify-content:center;gap:10px">
@@ -103,7 +106,9 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
 </div>
 
 <div class="pg">
- <div class="c"><div class="row"><div><label>Mês</label><input type="month" id="mes" onchange="render()"></div><div><div class="mu">Saldo</div><div class="big" id="rSaldo2">0h00</div></div></div>
+ <div class="c"><input type="hidden" id="mes">
+ <div style="display:flex;align-items:center;gap:6px"><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="mesPasso(-1)" title="Mês anterior" aria-label="Mês anterior">◀</button><b id="mesTx" style="flex:1;text-align:center;font-size:13px"></b><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="mesPasso(1)" title="Próximo mês" aria-label="Próximo mês">▶</button></div>
+ <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><span class="mu">Saldo do mês</span><span class="big" id="rSaldo2">0h00</span></div>
  <div class="mu" style="font-size:11px;margin-top:4px">Sáb/dom: 1h = 1h30. Hora extra digitada do comprovante vale no lugar do cálculo.</div>
  <button class="s" style="width:100%;margin-top:8px" onclick="copiarMes()">📋 Copiar horários do mês (para acertar o ponto)</button>
  <div class="row" style="margin-top:8px"><div><label>Valor da hora extra (R$)</label><input id="vh" inputmode="decimal" placeholder="ex.: 25,00" onchange="salvaVh()"></div><div><div class="mu">Valor estimado</div><div class="big" id="rVal">R$ 0,00</div></div></div></div>
@@ -202,6 +207,7 @@ function editFer(i){ferEd=i;$('fa').value=D.fer[i].a;$('fb').value=D.fer[i].b;$(
 function delFer(i){if(confirm('Apagar estas férias?')){ferEd=null;$('fbtn').textContent='🏖️ Lançar férias';D.fer.splice(i,1);gravar();render()}}
 function nUtil(ds){const d=new Date(ds+'T12:00'),n=d.getDate();let c=0;for(let i=1;i<=n;i++){const w=new Date(d.getFullYear(),d.getMonth(),i,12).getDay();if(w!=0&&w!=6)c++}const w0=d.getDay();return(w0==0||w0==6)?0:c}
 function mesAnt(ds){const d=new Date(ds+'T12:00');d.setDate(1);d.setMonth(d.getMonth()-1);return d.getFullYear()+'-'+p2(d.getMonth()+1)}
+function mesPasso(n){const a=($('mes').value||hoje().slice(0,7)).split('-'),d=new Date(+a[0],+a[1]-1+n,1),nv=d.getFullYear()+'-'+p2(d.getMonth()+1);if(nv>hoje().slice(0,7))return;$('mes').value=nv;render()}
 function irMesAnt(){$('mes').value=mesAnt(hoje());aba(1)}
 function copiarMes(){const m=$('mes').value,L=[];Object.keys(D.r).sort().forEach(k=>{if(!k.startsWith(m))return;const x=D.r[k],nome=new Date(k+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');L.push(nome+': '+(x.folga?'FOLGA':(x.i||'--:--')+' às '+(x.o||'--:--')))});FER().filter(f=>f.a.slice(0,7)<=m&&f.b.slice(0,7)>=m).forEach(f=>L.push('FÉRIAS: '+dm(f.a)+' a '+dm(f.b)));if(!L.length){alert('Nenhum registro neste mês.');return}const t='Horários de '+m.split('-').reverse().join('/')+'\n'+L.join('\n');navigator.clipboard.writeText(t).then(()=>alert('Horários copiados! É só colar onde for acertar o ponto.'))}
 async function restaurar(){let t='';try{t=await navigator.clipboard.readText()}catch(e){}let b=null;try{b=JSON.parse(t)}catch(e){}if(!b||!b.r){t=prompt('Cole aqui o backup que você copiou com 📋:')||'';try{b=JSON.parse(t)}catch(e){b=null}}if(!b||!b.r){alert('Não encontrei um backup válido. Copie de novo com 📋 no outro celular e tente outra vez.');return}const n=Object.keys(b.r).length;if(!confirm('Restaurar '+n+' dia(s) de registro? Os dados do backup são somados aos deste celular (as fotos daqui ficam).'))return;Object.keys(b.r).forEach(k=>{D.r[k]=Object.assign({},D.r[k]||{},b.r[k])});D.cfg=Object.assign({},D.cfg,b.cfg||{});D.sys=Object.assign({},D.sys,b.sys||{});D.hol=Object.assign({},H(),b.hol||{});(b.fer||[]).forEach(f=>{if(!D.fer.some(x=>x.a==f.a&&x.b==f.b))D.fer.push(f)});D.fer.sort((x,y)=>x.a<y.a?-1:1);gravar();render();alert('Backup restaurado!')}
@@ -461,7 +467,7 @@ function render(){
  {const n=nUtil(ds),b=$('lemb'),ma=mesAnt(ds).split('-').reverse().join('/');if(n==2||n==3){b.style.display='';b.innerHTML='🔔 <b>Hoje é o '+n+'º dia útil.</b> '+(n==3?'Último dia para acertar o ponto de ':'Acerte o ponto de ')+'<b>'+ma+'</b>.<button style="width:100%;margin-top:6px" onclick="irMesAnt()">📋 Ver horários de '+ma+'</button>'}else b.style.display='none'}
  const fh=FER().find(f=>ds>=f.a&&ds<=f.b);$('fgst').textContent=fh?'🏖️ Você está de férias ('+dm(fh.a)+' a '+dm(fh.b)+') · não precisa lançar horas':(r.folga?'🌴 Hoje está lançado como folga (compensa a jornada)':'');
  $('fhoje').textContent='Fotos de hoje: entrada '+(r.fin?'☁️✅':r.fi?'⏳':'—')+' · saída '+(r.fon?'☁️✅':r.fo?'⏳':'—');
- if(!$('mes').value)$('mes').value=ds.slice(0,7);
+ if(!$('mes').value)$('mes').value=ds.slice(0,7);{const a=$('mes').value.split('-'),NM=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];$('mesTx').textContent=NM[+a[1]-1]+' de '+a[0]}
  $('cpm').value=D.cfg.pm||3;if(document.activeElement!==$('cpi'))$('cpi').value=D.cfg.pi||'';$('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
  const m=$('mes').value;let tw=0,te=0,h='',g='',hh='';const vhd=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,rs=e=>vhd>0&&e>0?' · <b>R$ '+(vhd*e/60).toFixed(2).replace('.',',')+'</b>':'';
  Object.keys(D.r).sort().forEach(k=>{
@@ -496,7 +502,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='6.6';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='6.8';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});try{saidaPrev()}catch(e){}}
