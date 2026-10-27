@@ -121,7 +121,9 @@ input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-w
 <div class="c" id="lista"></div>
 </div>
 
-<div class="pg"><div class="c"><b>📷 Provas do ponto</b><div class="mu" style="font-size:11px;margin:2px 0 6px">Toque na foto para ampliar. Fotos com mais de 30 dias saem do celular e ficam só na nuvem.</div><div id="gal"></div><button class="s" style="width:100%;margin-top:10px" onclick="verFotosNuvem()">☁️ Ver fotos antigas (na nuvem)</button><div id="galOld"></div></div></div>
+<div class="pg"><div class="c"><b>📷 Provas do ponto</b> <span class="mu" style="font-size:11px">☁️ guardadas só na nuvem</span><div class="mu" style="font-size:11px;margin:2px 0 6px">As fotos não ficam no celular: assim que sobem para a nuvem, saem daqui. Escolha o mês para consultar e toque na foto para ampliar.</div>
+ <div class="row" style="align-items:flex-end"><div><label>Mês das fotos</label><input type="month" id="galMes" onchange="verFotosNuvem()"></div><button class="s" style="flex:0 0 52px" onclick="verFotosNuvem()" title="Buscar fotos na nuvem" aria-label="Buscar fotos na nuvem">🔄</button></div>
+ <div id="galOld"></div><div id="gal" style="margin-top:8px"></div></div></div>
 
 <div class="pg"><div class="c" id="nuvCard"><b>☁️ Nuvem</b> <span class="mu" id="nuvTxt" style="font-size:11px"></span>
  <div id="nuOut" style="margin-top:6px">
@@ -213,7 +215,7 @@ const alm=v=>{v=String(v||'').trim();if(!v)return null;if(!/[:h]/.test(v))return
 const fmt=m=>{const s=m<0?'-':'';m=Math.abs(Math.round(m));return s+Math.floor(m/60)+'h'+p2(m%60)};
 const parseHM=t=>{if(!t)return null;t=t.trim().replace('h',':');const n=t.startsWith('-');t=t.replace('-','');const[a,b]=t.split(':');const v=(+a||0)*60+(+b||0);return n?-v:v};
 const fimSem=ds=>{const w=new Date(ds+'T12:00').getDay();return w==0||w==6};
-function aba(n){document.querySelectorAll('.pg').forEach((p,i)=>p.classList.toggle('on',i==n));document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i==n));render()}
+function aba(n){document.querySelectorAll('.pg').forEach((p,i)=>p.classList.toggle('on',i==n));document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i==n));render();if(n==2){try{if(!$('galMes').value)$('galMes').value=hoje().slice(0,7);window.verFotosNuvem&&window.verFotosNuvem()}catch(e){}}}
 function calc(ds,r){
  if(r.folga){const j=hm(D.cfg.s)-hm(D.cfg.e)-D.cfg.l;return{w:0,ex:-j}}
  if(!r.i||!r.o)return null;
@@ -349,14 +351,14 @@ function rendApagar(){try{const kb=Math.round((localStorage.getItem('ponto_v1')|
  if(!$('dmes').value)$('dmes').value=hoje().slice(0,7);const m=$('dmes').value;let h='',f='',o='',y='',v='';
  Object.keys(D.r).sort().reverse().forEach(k=>{const x=D.r[k];
   if(k.startsWith(m))h+='<div class="dl"><span>'+nomeD(k)+' · '+(x.folga?'🌴 folga':(x.i||'--:--')+' → '+(x.o||'--:--'))+'</span>'+lx("apagar('"+k+"')",'Apagar dia')+'</div>';
-  ['fi','fo'].forEach(q=>{if(x[q])f+='<div class="dl"><span>'+nomeD(k)+' · '+(q=='fi'?'entrada':'saída')+(x[q+'t']?' '+x[q+'t']:'')+'<img src="'+x[q]+'"></span>'+lx("delFotoDia('"+k+"','"+q+"')",'Apagar foto')+'</div>'})});
+  ['fi','fo'].forEach(q=>{if(x[q]&&x[q].length>50)f+='<div class="dl"><span>'+nomeD(k)+' · '+(q=='fi'?'entrada':'saída')+(x[q+'t']?' '+x[q+'t']:'')+'<img src="'+x[q]+'"></span>'+lx("delFotoDia('"+k+"','"+q+"')",'Apagar foto')+'</div>'})});
  Object.keys(H()).sort().reverse().forEach(k=>{o+='<div class="dl"><span>'+mf(k)+' · '+fmt(H()[k].m)+' = '+rr(H()[k].v)+'</span>'+lx("delHolMes('"+k+"')",'Apagar holerite')+'</div>'});
  Object.keys(D.sys||{}).sort().reverse().forEach(k=>{y+='<div class="dl"><span>'+mf(k)+' · '+fmt(D.sys[k].total)+'</span>'+lx("delSys('"+k+"')",'Apagar extras do sistema')+'</div>'});
  (D.fer||[]).forEach((x,i)=>{v+='<div class="dl"><span>'+dm(x.a)+' a '+dm(x.b)+'</span>'+lx('delFer('+i+')','Apagar férias')+'</div>'});
  const n='<span class="mu">Nada lançado.</span>';
- $('dDias').innerHTML=h||'<span class="mu">Nenhum dia neste mês.</span>';$('dFotos').innerHTML=f||'<span class="mu">Nenhuma foto guardada.</span>';$('dHol').innerHTML=o||n;$('dSys').innerHTML=y||n;$('dFer').innerHTML=v||n}
+ $('dDias').innerHTML=h||'<span class="mu">Nenhum dia neste mês.</span>';$('dFotos').innerHTML=f||'<span class="mu">Nenhuma foto no celular. As fotos ficam na nuvem (aba Fotos).</span>';$('dHol').innerHTML=o||n;$('dSys').innerHTML=y||n;$('dFer').innerHTML=v||n}
 function apagarMes(){const m=$('dmes').value,ks=Object.keys(D.r).filter(k=>k.startsWith(m));if(!ks.length)return alert('Nada para apagar neste mês.');if(!confirm('Apagar os '+ks.length+' dias de '+mf(m)+'? Não dá para desfazer.'))return;ks.forEach(k=>delete D.r[k]);gravar();render()}
-function delFotoDia(k,q){if(!confirm('Apagar esta foto?'))return;window.apagaFotoNuvem&&window.apagaFotoNuvem(k,q);delete D.r[k][q];delete D.r[k][q+'t'];gravar();render()}
+function delFotoDia(k,q){if(!confirm('Apagar esta foto?'))return;window.apagaFotoNuvem&&window.apagaFotoNuvem(k,q);delete D.r[k][q];delete D.r[k][q+'t'];delete D.r[k][q+'n'];gravar();render()}
 function delHolMes(k){if(!confirm('Apagar o holerite de '+mf(k)+'?'))return;delete H()[k];gravar();render()}
 function delSys(k){if(!confirm('Apagar os extras do sistema de '+mf(k)+'?'))return;delete D.sys[k];gravar();render()}
 function apagarTudo(){if((prompt('Isso apaga TODOS os dados do app neste celular. Digite APAGAR para confirmar:')||'').trim().toUpperCase()!=='APAGAR')return;D={cfg:D.cfg,r:{},sys:{},fer:[],hol:{}};gravar();render();alert('Tudo apagado. A jornada (Config) foi mantida.')}
@@ -392,7 +394,8 @@ async function bioEntrar(){const id=localStorage.getItem('ponto_bio');if(!id)ret
 function lkInit(){const L=['1','2','3','4','5','6','7','8','9','B','0','<'],p=$('lkPad');p.innerHTML=L.map(t=>'<button class="kp" onclick="lkTecla(\''+t+'\')">'+(t=='B'?'🙂':t=='<'?'⌫':t)+'</button>').join('');lkSt();lkTrancar();
  document.addEventListener('visibilitychange',()=>{if(document.hidden)lkHid=Date.now();else if(lkHid&&Date.now()-lkHid>60000){lkTrancar()}})}
 let zk=null;function ver(ds,k){zk=[ds,k];$('zi').src=D.r[ds][k];$('zoom').style.display='flex'}
-function delFoto(){if(!zk||!confirm('Apagar esta foto?'))return;const r=D.r[zk[0]];window.apagaFotoNuvem&&window.apagaFotoNuvem(zk[0],zk[1]);delete r[zk[1]];delete r[zk[1]+'t'];zk=null;gravar();$('zoom').style.display='none';render()}
+function verSrc(ds,k,src){zk=[ds,k,1];$('zi').src=src;$('zoom').style.display='flex'}
+function delFoto(){if(!zk||!confirm('Apagar esta foto?'))return;const nuv=zk[2],r=D.r[zk[0]]||{},pr=Promise.resolve(window.apagaFotoNuvem&&window.apagaFotoNuvem(zk[0],zk[1]));delete r[zk[1]];delete r[zk[1]+'t'];delete r[zk[1]+'n'];zk=null;gravar();$('zoom').style.display='none';render();if(nuv)pr.then(()=>window.verFotosNuvem&&window.verFotosNuvem())}
 function salvar(){
  const ds=$('fd').value;if(!ds)return alert('Escolha a data.');
  const r=D.r[ds]=D.r[ds]||{};
@@ -450,7 +453,7 @@ function render(){
  $('hi').value=r.i||'';$('ho').value=r.o||'';{const dia=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');$('lbI').textContent='Entrada · '+dia;$('lbO').textContent='Saída · '+dia}$('hi').disabled=$('ho').disabled=!!((r.i||r.o)&&!edit&&!r.folga);
  {const n=nUtil(ds),b=$('lemb'),ma=mesAnt(ds).split('-').reverse().join('/');if(n==2||n==3){b.style.display='';b.innerHTML='🔔 <b>Hoje é o '+n+'º dia útil.</b> '+(n==3?'Último dia para acertar o ponto de ':'Acerte o ponto de ')+'<b>'+ma+'</b>.<button style="width:100%;margin-top:6px" onclick="irMesAnt()">📋 Ver horários de '+ma+'</button>'}else b.style.display='none'}
  const fh=FER().find(f=>ds>=f.a&&ds<=f.b);$('fgst').textContent=fh?'🏖️ Você está de férias ('+dm(fh.a)+' a '+dm(fh.b)+') · não precisa lançar horas':(r.folga?'🌴 Hoje está lançado como folga (compensa a jornada)':'');
- $('fhoje').textContent='Fotos de hoje: entrada '+(r.fi?'✅':'—')+' · saída '+(r.fo?'✅':'—');
+ $('fhoje').textContent='Fotos de hoje: entrada '+(r.fin?'☁️✅':r.fi?'⏳':'—')+' · saída '+(r.fon?'☁️✅':r.fo?'⏳':'—');
  if(!$('mes').value)$('mes').value=ds.slice(0,7);
  $('cpm').value=D.cfg.pm||3;if(document.activeElement!==$('cpi'))$('cpi').value=D.cfg.pi||'';$('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
  const m=$('mes').value;let tw=0,te=0,h='',g='',hh='';const vhd=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,rs=e=>vhd>0&&e>0?' · <b>R$ '+(vhd*e/60).toFixed(2).replace('.',',')+'</b>':'';
@@ -471,7 +474,7 @@ function render(){
  {const n=Object.keys(D.r).filter(k=>k.startsWith(m)).length;$('dmS').textContent=n?'· '+n+' '+(n>1?'dias':'dia')+' · extras '+fmt(te):''}
  $('listaHoje').innerHTML=hh||'<span class="mu">Nenhum registro neste mês.</span>';
  $('lista').innerHTML=h||'<span class="mu">Nenhum registro neste mês.</span>';
- $('gal').innerHTML=g||'<span class="mu">Nenhuma foto ainda.</span>';
+ $('gal').innerHTML=g?'<div class="day" style="color:#e67e22;font-weight:600">⏳ Ainda no celular, esperando subir para a nuvem'+(window.nuvemOn&&window.nuvemOn()?'':' (entre na sua conta em Config → ☁️ Nuvem)')+':</div>'+g:'';
  const sy=D.sys[m];
  $('sysout').innerHTML=sy?sy.itens.map((x,i)=>'<div class="dl"><span>'+x.data.split('-').reverse().slice(0,2).join('/')+' · '+x.horas+'</span><button class="s xd" onclick="delItemSys('+i+')" aria-label="Tirar este dia">✕</button></div>').join('')+'<div class="big" style="margin-top:4px">Total sistema: '+fmt(sy.total)+'</div>':'<span class="mu">Nenhum lançamento deste mês.</span>';
  $('rSys').textContent=sy?'Extras no sistema: '+fmt(sy.total):'';
@@ -486,7 +489,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='6.4';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='6.5';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});try{saidaPrev()}catch(e){}}
@@ -570,16 +573,24 @@ const FOTOS_UP='ponto_fotos_up';
 function upMap(){try{return JSON.parse(localStorage.getItem(FOTOS_UP)||'{}')}catch(e){return {}}}
 const FOTO_DIAS=30;
 function corteFotos(){const d=new Date();d.setDate(d.getDate()-FOTO_DIAS);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
-function limparFotosAntigas(){const up=upMap(),cut=corteFotos();let n=0;
-  Object.keys(D.r||{}).forEach(k=>{if(k>=cut)return;const r=D.r[k];['fi','fo'].forEach(q=>{const img=r&&r[q];if(typeof img==='string'&&up[k+'_'+q]===img.length){delete r[q];n++}})});
-  if(n){aplicando=true;try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}finally{aplicando=false}try{render()}catch(e){}}
+function limparFotosAntigas(){const up=upMap();let n=0;
+  Object.keys(D.r||{}).forEach(k=>{const r=D.r[k];['fi','fo'].forEach(q=>{const img=r&&r[q];if(typeof img==='string'&&img.length>50&&up[k+'_'+q]===img.length){delete r[q];r[q+'n']=1;n++}})});
+  if(n){try{localStorage.setItem('ponto_v1',JSON.stringify(D))}catch(e){}try{render()}catch(e){}}
 }
+window.nuvemOn=()=>!!(user&&!semNuvem);
+let fotosNuv=[];
 window.verFotosNuvem=async function(){const box=document.getElementById('galOld');if(!box)return;
-  if(!user){box.innerHTML='<div class="mu" style="margin-top:6px">Entre na sua conta (Config) para ver as fotos da nuvem.</div>';return}
-  box.innerHTML='<div class="mu" style="margin-top:6px">Buscando na nuvem…</div>';
-  try{const sn=await F.getDocs(F.query(F.collection(db,'ponto',user.uid,'fotos'),F.where('dia','<',corteFotos())));const L=[];sn.forEach(d=>{const x=d.data();if(x&&x.img&&x.dia)L.push(x)});L.sort((a,b)=>a.dia<b.dia?1:-1);
-    box.innerHTML=L.length?L.map(x=>'<div style="margin-top:8px"><b>'+x.dia.split('-').reverse().join('/')+'</b> <span class="mu">'+(x.q=='fi'?'entrada':'saída')+(x.t?' '+x.t:'')+'</span><br><img src="'+x.img+'" style="width:60%;border-radius:6px;margin-top:4px"></div>').join(''):'<div class="mu" style="margin-top:6px">Nenhuma foto antiga na nuvem.</div>'
-  }catch(e){box.innerHTML='<div class="mu" style="margin-top:6px">Não consegui buscar agora. Confira se as regras novas do Firebase foram publicadas.</div>'}};
+  if(!user){box.innerHTML='<div class="mu" style="margin-top:6px">Entre na sua conta (Config → ☁️ Nuvem) para ver as fotos.</div>';return}
+  if(!F){box.innerHTML='<div class="mu" style="margin-top:6px">A nuvem ainda está conectando. Toque em 🔄 daqui a pouco.</div>';return}
+  const mi=N('galMes');if(mi&&!mi.value)mi.value=hoje().slice(0,7);const m=(mi&&mi.value)||hoje().slice(0,7);
+  box.innerHTML='<div class="mu" style="margin-top:6px">Buscando as fotos de '+m.split('-').reverse().join('/')+' na nuvem…</div>';
+  try{const sn=await F.getDocs(F.query(F.collection(db,'ponto',user.uid,'fotos'),F.where('dia','>=',m+'-01'),F.where('dia','<=',m+'-31')));const L=[];sn.forEach(d=>{const x=d.data();if(x&&x.img&&x.dia)L.push(x)});L.sort((a,b)=>a.dia!=b.dia?(a.dia<b.dia?1:-1):(a.q=='fi'?-1:1));fotosNuv=L;
+    if(!L.length){box.innerHTML='<div class="mu" style="margin-top:6px">Nenhuma foto na nuvem em '+m.split('-').reverse().join('/')+'.</div>';return}
+    const dias=[...new Set(L.map(x=>x.dia))];
+    box.innerHTML=dias.map(k=>{const r=D.r[k]||{};return '<div style="margin-top:8px"><b>'+nomeD(k)+'</b> <span class="mu">'+(r.i?'entrada '+r.i:'')+(r.o?' · saída '+r.o:'')+'</span><div class="ph" style="margin-top:4px">'+
+      L.map((x,i)=>x.dia!=k?'':'<div><img src="'+x.img+'" onclick="verNuv('+i+')"><div class="sub">'+(x.q=='fi'?'entrada':'saída')+(x.t?' '+esc(x.t):'')+'</div></div>').join('')+'</div></div>'}).join('')
+  }catch(e){box.innerHTML='<div class="mu" style="margin-top:6px">Não consegui buscar agora. Confira a internet e toque em 🔄.</div>'}};
+window.verNuv=function(i){const x=fotosNuv[i];if(x)verSrc(x.dia,x.q,x.img)};
 async function enviarFotos(){
   if(!user||semNuvem)return;
   const up=upMap();let mudou=false;
@@ -592,6 +603,7 @@ async function enviarFotos(){
   try{limparFotosAntigas()}catch(e){}
 }
 async function baixarFotos(){
+  return; // as fotos ficam só na nuvem: não baixa mais para o celular
   if(!user||semNuvem)return;
   try{const sn=await F.getDocs(F.query(F.collection(db,'ponto',user.uid,'fotos'),F.where('dia','>=',corteFotos())));const up=upMap();let n=0;
     sn.forEach(d=>{const x=d.data();if(!x||!x.dia||!x.img||(x.q!=='fi'&&x.q!=='fo'))return;const r=D.r[x.dia]=D.r[x.dia]||{};if(!r[x.q]){r[x.q]=x.img;if(x.t)r[x.q+'t']=x.t;up[d.id]=x.img.length;n++}});
