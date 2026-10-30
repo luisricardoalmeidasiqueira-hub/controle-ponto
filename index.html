@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#1d4ed8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+(function(){try{var u=function(f){return new URL(f,location.href).href};
+var m={name:"Controle de Ponto",short_name:"Ponto",start_url:u("./"),scope:u("./"),display:"standalone",background_color:"#f4f6f8",theme_color:"#1d4ed8",lang:"pt-BR",
+icons:[{src:u("icon-192.png"),sizes:"192x192",type:"image/png"},{src:u("icon-512.png"),sizes:"512x512",type:"image/png"},{src:u("icon-maskable-512.png"),sizes:"512x512",type:"image/png",purpose:"maskable"}]};
+var l=document.createElement("link");l.rel="manifest";l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/manifest+json"}));document.head.appendChild(l)}catch(e){}})();
+</script>
+<title>Controle de Ponto</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mu:#68758a;--pr:#1d4ed8;--bd:#dde3ea;--rd:#c0392b;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1c222b;--tx:#e8edf3;--mu:#93a0b3;--pr:#6b9bff;--bd:#2c3542;--rd:#ff6b5b}}
+*{box-sizing:border-box}body{margin:auto;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;font-size:13px;padding:calc(env(safe-area-inset-top,0px) + 24px) 8px 8px;max-width:480px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:9px;margin-bottom:8px}
+.tabs{display:flex;gap:4px;margin-bottom:8px}.tabs button{flex:1;padding:7px 2px;font-size:12px;background:var(--card);color:var(--mu);border:1px solid var(--bd)}.tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.clock{font-size:26px;font-weight:700;text-align:center}.sub{text-align:center;color:var(--mu);font-size:12px}
+.row{display:flex;gap:6px}.row>*{flex:1;min-width:0}
+button{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:9px;font-size:13px;font-weight:600}
+button.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}button.d{background:var(--rd)}
+input{width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px}
+label{font-size:11px;color:var(--mu);display:block;margin-bottom:2px}
+input[type=time],input[type=date],input[type=month]{-webkit-appearance:none;appearance:none;display:block;height:38px;min-height:38px;line-height:normal;margin:0;text-align:left}
+input::-webkit-date-and-time-value{text-align:left;margin:0;min-height:1.3em}
+input:disabled{opacity:.75;-webkit-text-fill-color:var(--tx)}
+.big{font-size:20px;font-weight:700;color:var(--pr)}.neg{color:var(--rd)}.mu{color:var(--mu)}
+.day{border-top:1px solid var(--bd);padding:6px 0;font-size:12px}.day:first-child{border-top:0}
+.ph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ph img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px}
+.tabs button.ic{flex:none;width:40px;padding:7px 0;font-size:15px}
+.fbi{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-size:19px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer;background:#fff5df}.fbi.ok{background:#e8f8ee}.fbi.off{background:#ffe9e9}.fbi.sync{background:#fff5df}
+.pg{display:none}.pg.on{display:block}
+#zoom{display:none;position:fixed;inset:0;background:#000d;z-index:9;align-items:center;justify-content:center}#zoom img{max-width:96%;max-height:90%}
+details summary{font-weight:600;font-size:13px}
+.ft{text-align:center;color:var(--mu);font-size:11px;margin:10px 0 4px;line-height:1.5}
+.tw{position:relative}.tw input{padding-right:30px}.x{position:absolute;right:2px;top:2px;bottom:2px;width:30px;padding:0;background:transparent;color:var(--rd);font-size:15px;border:0}
+#zdel{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:var(--rd)}
+.dl{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:3px 0;border-top:1px solid var(--bd)}.dl:first-child{border-top:0}.dl img{height:28px;vertical-align:middle;border-radius:4px;margin-left:4px}.xd{flex:none;padding:2px 8px;color:var(--rd);border-color:var(--rd)}
+body{font-size:11px;padding:calc(env(safe-area-inset-top,0px) + 18px) 6px 6px;max-width:440px}
+.c{padding:6px;margin-bottom:5px;border-radius:8px}
+.tabs{gap:3px;margin-bottom:5px}.tabs button{padding:5px 1px;font-size:10.5px}.tabs button.ic{width:28px;padding:5px 0;font-size:13px}
+.clock{font-size:20px}.sub{font-size:10.5px}.big{font-size:15px}.day{padding:4px 0;font-size:11px}
+button{padding:6px;font-size:11.5px;border-radius:7px}
+input,select{padding:4px 5px;font-size:12.5px;min-height:30px}
+input[type=time],input[type=date],input[type=month]{height:30px;min-height:30px}
+label{font-size:9.5px}.row{gap:4px}details summary{font-size:11.5px}
+.kp{height:50px;font-size:19px;background:var(--card);color:var(--tx);border:1px solid var(--bd)}#lock button.kp:active{background:var(--pr);color:#fff}
+input[type=date],input[type=month]{-webkit-appearance:auto;appearance:auto;min-width:0}
+#fa,#fb,#dmData,#sysData,#fd,#dmes,#hmr{height:30px;min-height:30px;-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;overflow:hidden;padding-right:4px}
+input[type=date],input[type=month],input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;height:30px;min-height:30px;line-height:1.2;overflow:hidden;padding-top:0;padding-bottom:0;box-sizing:border-box}
+input::-webkit-date-and-time-value{text-align:left;margin:0}
+.dw{position:relative;min-width:0}.dw input{position:absolute!important;inset:0;width:100%!important;height:100%!important;opacity:0;z-index:2;margin:0}
+.dv{display:flex;align-items:center;gap:4px;height:30px;padding:0 7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dv.vz{color:var(--mu)}
+select{height:30px!important;min-height:30px;padding:0 5px!important;font-size:12.5px!important}
+#bhD input{-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:38px;line-height:1.2;overflow:hidden;padding-top:0;padding-bottom:0}#bhD .row{align-items:end;gap:8px;margin-top:8px}#bhD .row>div{min-width:0;overflow:hidden}
+</style></head><body>
+<div id="lock" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:30;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+ <img src="icon-192.png" onerror="this.style.display='none'" alt="" width="72" height="72" style="border-radius:16px"><div style="font-size:22px">🔒</div><div id="lkMsg" class="mu" style="font-size:12px">Digite o PIN de 4 números</div>
+ <div id="lkDots" style="font-size:24px;letter-spacing:8px;color:var(--pr)">○○○○</div>
+ <div id="lkPad" style="display:grid;grid-template-columns:repeat(3,62px);gap:8px;margin-top:6px"></div>
+ <button class="s" style="margin-top:6px;padding:4px 10px;font-size:10.5px" onclick="lkEsqueci()">Esqueci o PIN</button>
+</div>
+<div class="tabs"><button class="on" onclick="aba(0)">Hoje</button><button onclick="aba(1)">Mês</button><button onclick="aba(2)">Fotos</button><button onclick="aba(3)">Config</button><button onclick="aba(4)" title="Holerite" aria-label="Holerite">🧾</button><button id="verBtn" class="ic" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app" style="width:auto;flex:none;padding:5px 6px;font-size:10px;font-weight:700;background:transparent;color:var(--pr);border:1px solid var(--pr)">🔄 v<span id="ver2"></span></button><button class="ic" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button></div>
+
+<div class="pg on">
+ <div class="c" id="lemb" style="display:none;border-color:var(--rd)"></div>
+ <div class="c" style="position:relative">
+  <img src="icon-192.png" onerror="this.style.display='none'" alt="" width="34" height="34" style="position:absolute;top:8px;left:8px;border-radius:9px">
+  <span id="nuvInd" class="fbi sync" onclick="irNuvem()" title="Nuvem" aria-label="Nuvem" style="position:absolute;top:8px;right:8px">⏳</span>
+  <div class="clock" id="clk">--:--:--</div><div class="sub" id="dt"></div>
+  <div class="row" style="margin-top:8px"><button onclick="bater('i')">ENTRADA</button><button class="d" onclick="bater('o')">SAÍDA</button></div>
+  <div id="saidaPrev" style="display:none;margin-top:8px;padding:7px 8px;border:1px solid var(--pr);border-radius:8px;text-align:center"></div>
+  <div id="resumoHoje" style="display:none;margin-top:8px;align-items:center;justify-content:space-between;gap:8px"></div><div id="manualBox"><div class="sub" style="margin-top:8px">Ou digite o horário na mão (se não bateu o ponto):</div><div class="row" style="margin-top:4px"><div><label id="lbI">Entrada</label><div class="tw"><input id="hi" inputmode="numeric" maxlength="5" placeholder="ex.: 0730" oninput="mask(this)" onchange="manual()"><button class="x" onclick="limpa('hi')" title="Limpar entrada" aria-label="Limpar entrada">✕</button></div></div><div><label id="lbO">Saída</label><div class="tw"><input id="ho" inputmode="numeric" maxlength="5" placeholder="ex.: 1120" oninput="mask(this)" onchange="manual()"><button class="x" onclick="limpa('ho')" title="Limpar saída" aria-label="Limpar saída">✕</button></div></div></div><div class="row" style="margin-top:6px"><button onclick="salvarHoje()" title="Salvar" aria-label="Salvar">💾</button><button class="s" onclick="editarHoje()" title="Editar" aria-label="Editar">✏️</button><button class="s" onclick="folgaHoje()" title="Lançar ou tirar folga de hoje" aria-label="Lançar ou tirar folga de hoje">🌴</button></div><div class="sub" style="margin-top:4px">💾 Salvar · ✏️ Editar · 🌴 Lançar/tirar folga de hoje</div><div class="sub" id="fgst"></div><div class="sub" id="sv" style="color:var(--pr)">✓ Tudo é salvo automaticamente</div></div>
+ </div>
+ <div class="c">
+  <b>📷 Foto do relógio de ponto da empresa</b><div class="mu" style="font-size:11px">Com a IA ligada (Config → 🤖), o app lê o horário da foto e pergunta se está certo. Sem IA, tenta o leitor do celular. Se não conseguir, guarda a foto como prova e você digita.</div>
+  <div class="row" style="margin-top:6px"><button class="s" onclick="foto('fi')">Foto da entrada</button><button class="s" onclick="foto('fo')">Foto da saída</button></div>
+  <div class="sub" id="fhoje" style="margin-top:6px"></div>
+ </div>
+ <details class="c" id="gx"><summary><b>⏱️ Horas extras</b> <span class="mu" id="sumS"></span></summary>
+<div class="c"><div class="row"><div><div class="mu">Hoje: trabalhadas</div><div class="big" id="hT">0h00</div></div><div><div class="mu">Hoje: extra</div><div class="big" id="hE">0h00</div></div></div><div class="sub" id="hV" style="margin-top:6px"></div></div>
+ <div class="c"><details id="acD"><summary><b id="acT">💰 Acumulado</b> <span id="acS" class="big" style="font-size:15px"></span></summary><div class="row" style="margin-top:6px"><div><div class="mu">Extras no período</div><div class="big" id="acE">0h00</div></div><div><div class="mu">Valor estimado</div><div class="big" id="acV">R$ 0,00</div></div></div><div class="sub" id="acL" style="margin-top:6px"></div></details></div>
+ <div class="c"><div class="row"><div><div class="mu">Mês: trabalhadas</div><div class="big" id="rTrab">0h00</div></div><div><div class="mu">Saldo final (extras)</div><div class="big" id="rSaldo">0h00</div></div></div><div class="sub" id="rSys" style="margin-top:6px"></div><div class="sub" id="rVal2"></div></div>
+ 
+</details>
+ <div class="c"><details id="bhD"><summary><b>🏦 Banco de horas</b> <span id="bhS" class="mu" style="font-size:11px"></span></summary>
+ <div class="mu" style="font-size:10px;margin-top:4px">Números do relatório "Vencimento de Banco de Horas" da Elektro, só para controle. Por enquanto o app só soma as horas extras positivas feitas depois da data de corte. A compensação a gente acerta depois.</div>
+ <div class="row" style="margin-top:6px"><div><label>Data do relatório</label><input type="date" id="bhData"></div><div><label>Saldo total (h:mm)</label><input id="bhSaldo" placeholder="ex.: 75:43"></div></div>
+ <div class="row" style="margin-top:6px"><div><label>Contar o que fizer a partir de</label><input type="date" id="bhCorte"></div><div><label>Vencem após (meses)</label><input id="bhMeses" inputmode="numeric" placeholder="4"></div></div>
+ <div class="mu" style="font-size:10px;margin-top:8px">Vencimentos (mês · horas)</div>
+ <div id="bhV"></div>
+ <button style="width:100%;margin-top:8px" onclick="salvaBH()">💾 Salvar banco de horas</button>
+ <div id="bhOut" style="margin-top:8px"></div>
+</details></div>
+<div class="c"><details><summary><b>🏖️ Férias</b> <span class="mu" style="font-size:11px">(não precisa lançar horas)</span></summary><div class="row" style="margin-top:6px"><div><label>De</label><input type="date" id="fa"></div><div><label>Até</label><input type="date" id="fb"></div></div><button id="fbtn" style="width:100%;margin-top:6px" onclick="addFer()">🏖️ Lançar férias</button><div id="ferList" style="margin-top:6px"></div></details></div>
+ <div class="c"><details id="dmD"><summary><b>📅 Dias do mês</b> <span id="dmS" class="mu" style="font-size:11px"></span></summary>
+ <div class="row" style="margin-top:6px;align-items:flex-end"><div><label>Procurar um dia</label><input type="date" id="dmData" onchange="dmBusca()"></div><button class="s" style="flex:0 0 52px" onclick="dmFalta()" title="Dias sem registro" aria-label="Dias sem registro">🔍</button></div>
+ <div class="sub" style="text-align:left;margin-top:2px">🔍 Mostrar os dias sem registro neste mês e lançar direto aqui. Para um dia só (sábado, domingo ou feriado), escolha a data em <b>Procurar um dia</b>.</div>
+ <label style="display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" id="dmFim" onchange="dmFalta()" style="width:auto"> <span class="mu" style="font-size:11px">Incluir sábados e domingos na lista</span></label>
+ <div id="dmRes" style="margin-top:4px"></div>
+ <div id="listaHoje" style="margin-top:4px"></div></details></div>
+</div>
+
+<div class="pg">
+ <div class="c"><input type="hidden" id="mes">
+ <div style="display:flex;align-items:center;gap:6px"><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="mesPasso(-1)" title="Mês anterior" aria-label="Mês anterior">◀</button><b id="mesTx" style="flex:1;text-align:center;font-size:13px"></b><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="mesPasso(1)" title="Próximo mês" aria-label="Próximo mês">▶</button></div>
+ <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px"><span class="mu">Saldo do mês</span><span class="big" id="rSaldo2">0h00</span></div><div id="mesRes"></div>
+ <div class="mu" style="font-size:11px;margin-top:4px">Sáb/dom: 1h = 1h30. Hora extra digitada do comprovante vale no lugar do cálculo.</div>
+ <button class="s" style="width:100%;margin-top:8px" onclick="copiarMes()">📋 Copiar horários do mês (para acertar o ponto)</button>
+ <div class="row" style="margin-top:8px"><div><label>Valor da hora extra (R$)</label><input id="vh" inputmode="decimal" placeholder="ex.: 25,00" onchange="salvaVh()"></div><div><div class="mu">Valor estimado</div><div class="big" id="rVal">R$ 0,00</div></div></div></div>
+ <div class="c"><details id="fdet"><summary>+ Lançar / corrigir um dia</summary>
+  <div class="row" style="margin-top:6px"><div><label>Data</label><input type="date" id="fd"></div><div><label>Almoço (h:mm)</label><input id="fl" placeholder="padrão"></div></div>
+  <div class="row" style="margin-top:6px"><div><label>Entrada</label><div class="tw"><input id="fiT" inputmode="numeric" maxlength="5" placeholder="ex.: 0730" oninput="mask(this)"><button class="x" onclick="$('fiT').value=''" aria-label="Limpar entrada">✕</button></div></div><div><label>Saída</label><div class="tw"><input id="foT" inputmode="numeric" maxlength="5" placeholder="ex.: 1120" oninput="mask(this)"><button class="x" onclick="$('foT').value=''" aria-label="Limpar saída">✕</button></div></div><div><label>Extra (h:mm)</label><input id="fe" placeholder="opcional"></div></div>
+  <div style="margin-top:6px"><label>Tipo do dia</label><select id="fg" style="width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px"><option value="">Dia de trabalho</option><option value="1">🌴 Folga (compensa a jornada)</option></select></div>
+ <div class="row" style="margin-top:6px"><button onclick="salvar()">Salvar</button><button class="s" onclick="limparForm()">Limpar</button></div>
+ </details></div>
+ <div class="c"><b>📸 Horas extras do sistema</b><div class="mu" style="font-size:11px">Tire foto da tela do sistema e a IA lê os dias e as horas (ligue a IA em Config → 🤖). Ou lance cada dia na mão.</div>
+ <div class="row" style="margin-top:6px;align-items:flex-end"><div><label>Dia</label><input type="date" id="sysData"></div><div><label>Horas extras (h:mm)</label><input id="sysHoras" placeholder="ex.: 2:30"></div><button style="flex:none;width:44px" onclick="addSys()" title="Lançar o dia" aria-label="Lançar o dia">➕</button></div>
+ <div class="sub" style="margin-top:4px">➕ Lançar o dia · ✕ tirar um dia · 📷 Ler foto (IA)</div>
+ <div class="row" style="margin-top:4px"><button class="s" onclick="foto('sys')" title="Ler foto da tela do sistema com IA" aria-label="Ler foto da tela do sistema">📷 Ler foto (IA)</button><button class="s xd" onclick="limpaSys()" title="Limpar o mês" aria-label="Limpar o mês">🗑 Limpar o mês</button></div>
+ <div id="sysout" style="margin-top:6px"></div></div>
+<div class="c" id="lista"></div>
+</div>
+
+<div class="pg"><div class="c"><b>📷 Provas do ponto</b> <span class="mu" style="font-size:11px">☁️ guardadas só na nuvem</span><div class="mu" style="font-size:11px;margin:2px 0 6px">As fotos não ficam no celular. Escolha o mês nas setinhas e toque na ☁️ para ver.</div>
+ <input type="hidden" id="galMes">
+ <div style="display:flex;align-items:center;gap:6px"><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="galPasso(-1)" title="Mês anterior" aria-label="Mês anterior">◀</button><b id="galMesTx" style="flex:1;text-align:center;font-size:13px"></b><button class="s" style="flex:0 0 34px;padding:5px 0" onclick="galPasso(1)" title="Próximo mês" aria-label="Próximo mês">▶</button></div>
+ <button id="galBtn" style="width:100%;margin-top:6px;font-size:13px" onclick="galAbrir()" title="Ver fotos na nuvem" aria-label="Ver fotos na nuvem">☁️ Ver fotos na nuvem</button>
+ <div id="galOld"></div><div id="gal" style="margin-top:8px"></div></div></div>
+
+<div class="pg"><div class="c" id="nuvCard"><b>☁️ Nuvem</b> <span class="mu" id="nuvTxt" style="font-size:11px"></span>
+ <div id="nuOut" style="margin-top:6px">
+  <input id="nuNome" placeholder="Nome completo (só para criar conta)" autocomplete="name">
+  <input id="nuEmail" type="email" placeholder="Seu e-mail" autocomplete="username" style="margin-top:6px">
+  <input id="nuSenha" type="password" placeholder="Sua senha" autocomplete="current-password" style="margin-top:6px">
+  <div class="row" style="margin-top:6px"><button onclick="nuvEntrar()" title="Entrar" aria-label="Entrar">🔑</button><button class="s" onclick="nuvCriar()" title="Criar minha conta" aria-label="Criar minha conta">👤</button><button class="s" onclick="nuvVer()" title="Ver senha" aria-label="Ver senha">👁</button><button class="s" onclick="nuvEsqueci()" title="Esqueci a senha" aria-label="Esqueci a senha">✉️</button></div>
+  <div class="sub" style="margin-top:4px">🔑 Entrar · 👤 Criar minha conta · 👁 Ver senha · ✉️ Esqueci a senha</div>
+  <label style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" id="nuLembrar" checked style="width:auto"> <span class="mu" style="font-size:11px">Manter meu login salvo neste celular</span></label>
+  <div class="mu" style="font-size:10px;margin-top:4px">Use o mesmo e-mail e senha do app de Férias. Conta nova precisa ser liberada pelo desenvolvedor. Seus horários só você vê.</div>
+ </div>
+ <div id="nuIn" style="display:none;margin-top:6px"><div class="sub" id="nuQuem" style="text-align:left"></div>
+  <div class="row" style="margin-top:6px"><button class="s" onclick="nuvAgora()" title="Sincronizar agora" aria-label="Sincronizar agora">🔄</button><button class="s" onclick="nuvSair()" title="Sair" aria-label="Sair">🚪</button></div>
+  <div class="sub" style="margin-top:4px">🔄 Sincronizar agora · 🚪 Sair</div>
+  <div class="mu" style="font-size:10px">⏳ laranja: enviando ou sem login · ☁️ verde: sincronizado · 🚫 vermelho: sem conexão ou nuvem desativada. Fotos não vão para a nuvem.</div>
+  <div class="row" id="nuLinha" style="margin-top:6px"><button class="s xd" id="nuApaga" onclick="nuvApagarMinha()" title="Apagar meus dados da nuvem e parar de enviar" aria-label="Apagar meus dados da nuvem">🗑</button><button class="s" id="nuVolta" onclick="nuvVoltar()" title="Voltar a guardar na nuvem" aria-label="Voltar a guardar na nuvem" style="display:none">☁️</button></div>
+  <div class="sub" id="nuLeg" style="margin-top:4px">🗑 Apagar meus dados da nuvem e parar de enviar · ☁️ Voltar a guardar</div>
+ </div>
+ <div class="sub" id="nuMsg" style="text-align:left"></div>
+ <div id="nuDev" style="display:none;margin-top:8px;border-top:1px solid var(--bd);padding-top:6px"><b>👨‍💻 Desenvolvedor</b>
+  <div class="mu" style="font-size:10px">Toque em 🚫 para parar de guardar os horários da pessoa na nuvem (o que já estava lá é apagado e ela não consegue mais gravar). Toque em ☁️ para liberar de novo. Você nunca vê os horários dos outros.</div>
+  <div id="nuDevLista" style="margin-top:4px"></div></div>
+</div><div class="c">
+ <div class="row"><div><label>Entrada prevista</label><input type="time" id="ce"></div><div><label>Saída prevista</label><input type="time" id="cs"></div><div><label>Almoço (h:mm)</label><input id="cl" placeholder="1:30"></div></div>
+ <div class="row" style="margin-top:8px"><div><label>Extras pagas a cada</label><select id="cpm" style="width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px"><option value="1">1 mês</option><option value="2">2 meses</option><option value="3">3 meses</option><option value="4">4 meses</option></select></div><div><label>1º mês do período (opcional)</label><input type="month" id="cpi"></div></div>
+ <div class="row" style="margin-top:8px"><button onclick="salvaCfg()" title="Salvar" aria-label="Salvar">💾</button><button class="s" onclick="backup()" title="Copiar backup" aria-label="Copiar backup">📋</button><button class="s" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button><button class="s" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app">🔄</button></div>
+ <div class="sub" style="margin-top:4px">💾 Salvar · 📋 Copiar backup · 📤 Compartilhar app · 🔄 Atualizar app</div>
+ <div class="row" style="margin-top:8px"><button class="s" onclick="restaurar()" title="Restaurar backup" aria-label="Restaurar backup">📥</button><button class="s" onclick="baixarIcs()" title="Lembretes no calendário" aria-label="Lembretes no calendário">📅</button></div>
+ <div class="sub" style="margin-top:4px">📥 Restaurar backup (cole o que copiou em outro celular) · 📅 Lembretes do 2º e 3º dia útil no calendário</div>
+ <div class="mu" style="font-size:11px;margin-top:6px">Jornada = saída − entrada − almoço (seg a sex).</div>
+</div><div class="c"><b>🤖 Leitura de fotos com IA</b>
+  <div class="row" style="margin-top:4px"><button onclick="iaConfig()" title="Colar a chave do Google" aria-label="Chave do Google">🔑</button><button class="s" onclick="iaTestar()" title="Testar a IA" aria-label="Testar a IA">✅</button></div>
+  <div class="sub" style="margin-top:4px">🔑 Colar ou trocar a chave · ✅ Testar</div><div class="sub" id="iaSt"></div>
+  <div class="mu" style="font-size:10px;text-align:center">Usa o Google Gemini. A chave fica só neste celular: não vai no backup nem na nuvem. A foto vai para o Google; no plano grátis ele pode usar o conteúdo. Cubra CPF e endereço antes de ler um holerite.</div></div>
+ <div class="c"><b>🔒 Bloqueio do app</b>
+  <div class="row" style="margin-top:4px"><button onclick="pinDefinir()" title="Definir PIN de 4 números" aria-label="Definir PIN">🔑</button><button class="s" onclick="bioAtivar()" title="Ativar Face ID ou digital" aria-label="Face ID ou digital">🙂</button><button class="s" onclick="pinRemover()" title="Tirar o bloqueio" aria-label="Tirar o bloqueio">🔓</button></div>
+  <div class="sub" style="margin-top:4px">🔑 Definir PIN · 🙂 Face ID / digital · 🔓 Tirar bloqueio</div><div class="sub" id="lkSt"></div>
+  <div class="mu" style="font-size:10px;text-align:center">O app pede o PIN ao abrir e depois de 1 minuto fora dele. Anote o PIN: se esquecer, só apagando os dados do app.</div></div>
+<details class="c"><summary><b>🗑 Apagar dados</b> <span class="mu">(dias, fotos, holerites, férias)</span></summary>
+ <div class="c"><b>🗑 Apagar</b><div class="mu" style="font-size:10px">Toque na 🗑 do que quiser apagar. Sempre pergunta antes.</div><div class="sub" id="dEsp" style="text-align:left"></div></div>
+ <div class="c"><b>📅 Dias</b><div class="row" style="margin-top:4px"><div><input type="month" id="dmes" onchange="render()"></div><button class="s xd" style="padding:4px" onclick="apagarMes()">🗑 mês inteiro</button></div><div id="dDias" style="margin-top:4px"></div></div>
+ <div class="c"><b>📷 Fotos do ponto</b><div id="dFotos" style="margin-top:4px"></div></div>
+ <div class="c"><b>🧾 Holerites</b><div id="dHol" style="margin-top:4px"></div></div>
+ <div class="c"><b>📸 Extras do sistema</b><div id="dSys" style="margin-top:4px"></div></div>
+ <div class="c"><b>🏖️ Férias</b><div id="dFer" style="margin-top:4px"></div></div>
+ <div class="c" style="border-color:var(--rd)"><b>⚠️ Apagar tudo</b><div class="mu" style="font-size:10px">Apaga dias, fotos, holerites, extras e férias deste celular. Mantém só a jornada (Config).</div><button class="d" style="width:100%;margin-top:4px" onclick="apagarTudo()">🗑 Apagar todos os dados</button></div>
+</details>
+</div>
+
+<div class="pg">
+ <div class="c"><b>🧾 Holerite</b> <span class="mu" style="font-size:11px">(conferir as horas extras pagas)</span>
+  <div class="row" style="margin-top:6px"><div><label>Mês do holerite</label><input type="month" id="hmr" onchange="$('hh').value=$('hv').value='';render()"></div></div>
+  <div class="row" style="margin-top:6px"><div><label>Horas extras pagas</label><input id="hh" placeholder="ex.: 6:00" oninput="liveHol()"></div><div><label>Valor pago (R$)</label><input id="hv" inputmode="decimal" placeholder="ex.: 150,00" oninput="liveHol()"></div></div>
+  <div class="row" style="margin-top:6px"><button class="s" onclick="foto('hol')" title="Ler foto do holerite com IA" aria-label="Ler foto do holerite">📷</button><button onclick="salvaHol()" title="Salvar holerite" aria-label="Salvar holerite">💾</button><button class="s" onclick="delHol()" title="Apagar holerite" aria-label="Apagar holerite">🗑</button></div>
+  <div class="sub" style="margin-top:4px">📷 Ler a foto (IA) · 💾 Salvar · 🗑 Apagar<br>A foto do holerite não fica guardada. Ligue a IA em Config → 🤖 para ler por foto.</div>
+  <div class="sub" id="hres" style="margin-top:6px"></div></div>
+ <div class="c"><b>💾 Cópia de segurança</b><div class="mu" style="font-size:10px">Leva tudo (dias, holerites, férias, extras do sistema e jornada), sem as fotos. Mande para o notebook por WhatsApp ou e-mail e guarde lá.</div>
+  <div class="row" style="margin-top:4px"><button onclick="exportaArq()" title="Exportar arquivo" aria-label="Exportar arquivo">⬇️ Exportar</button><button class="s" onclick="$('fimp').click()" title="Importar arquivo" aria-label="Importar arquivo">⬆️ Importar</button></div>
+  <input type="file" id="fimp" style="display:none" onchange="importaArq(this)"></div>
+</div>
+<div class="ft">© 2026 Luis Ricardo de Almeida Siqueira · Desenvolvedor · Todos os direitos reservados<span id="ver" style="display:none"></span></div>
+<input type="file" accept="image/*" capture="environment" id="ff" style="display:none">
+<div id="zoom" onclick="this.style.display='none'"><img id="zi"><button id="zdel" onclick="event.stopPropagation();delFoto()">🗑 Apagar foto</button></div>
+
+<script src="ponto1.js?v=7.1"></script>
+<script src="ponto2.js?v=7.1"></script>
+<script src="nuvem.js?v=7.1"></script>
+</body></html>
