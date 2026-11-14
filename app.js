@@ -58,7 +58,7 @@ function dmFalta(){dmModo='falta';const fim=!!($('dmFim')&&$('dmFim').checked),m
   bx.innerHTML=L.length?'<div class="mu" style="font-size:11px">'+L.length+(fim?' dia(s)':' dia(s) útil(eis)')+' sem registro em '+a[1]+'/'+a[0]+'. Digite a entrada e a saída e toque em 💾:</div>'+L.map(dmLinha).join(''):'<span class="mu">Nenhum dia '+(fim?'':'útil ')+'sem registro em '+a[1]+'/'+a[0]+'. 👍</span>'}
 
 function apagar(ds){if(confirm('Apagar o dia '+ds+'?')){delete D.r[ds];gravar();render()}}
-function salvaCfg(){D.cfg={...D.cfg,e:$('ce').value||'07:30',s:$('cs').value||'17:00',l:alm($('cl').value)||0,m:1,pm:+$('cpm').value||3,pi:$('cpi').value||''};gravar();render();alert('Salvo')}
+function salvaCfg(){D.cfg={...D.cfg,e:$('ce').value||'07:30',s:$('cs').value||'17:00',l:alm($('cl').value)||0,m:1,pm:+$('cpm').value||6,pi:$('cpi').value||''};gravar();render();alert('Salvo')}
 function backup(){const t=JSON.stringify(D,(k,v)=>k[0]=='f'&&k.length<=3&&typeof v=='string'&&v.length>50?undefined:v);navigator.clipboard.writeText(t).then(()=>alert('Backup copiado (sem fotos).'))}
 function render(){
  const ds=hoje(),r=D.r[ds]||{};
@@ -67,7 +67,7 @@ function render(){
  const fh=FER().find(f=>ds>=f.a&&ds<=f.b);$('fgst').textContent=fh?(ehEle(fh)?'🗳️ Hoje é folga de eleição (':'🏖️ Você está de férias (')+dm(fh.a)+' a '+dm(fh.b)+') · não precisa lançar horas':(r.folga?'🌴 Hoje está lançado como folga (compensa a jornada)':'');
  $('fhoje').textContent='Fotos de hoje: entrada '+(r.fin?'☁️✅':r.fi?'⏳':'—')+' · saída '+(r.fon?'☁️✅':r.fo?'⏳':'—');
  if(!$('mes').value)$('mes').value=ds.slice(0,7);{const a=$('mes').value.split('-'),NM=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];$('mesTx').textContent=NM[+a[1]-1]+' de '+a[0]}
- $('cpm').value=D.cfg.pm||3;if(document.activeElement!==$('cpi'))$('cpi').value=D.cfg.pi||'';$('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
+ $('cpm').value=D.cfg.pm||6;if(document.activeElement!==$('cpi'))$('cpi').value=D.cfg.pi||'';$('ce').value=D.cfg.e;$('cs').value=D.cfg.s;$('cl').value=hmStr(D.cfg.l);
  const m=$('mes').value;let tp=0,tn=0,np=0,tw=0,te=0,h='',g='',hh='';const vhd=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,rs=e=>vhd>0&&e>0?' · <b>R$ '+(vhd*e/60).toFixed(2).replace('.',',')+'</b>':'';
  Object.keys(D.r).sort().forEach(k=>{
   const x=D.r[k],dd=new Date(k+'T12:00'),nome=dd.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
@@ -98,7 +98,7 @@ function render(){
  const sy=D.sys[m];
  $('sysout').innerHTML=sy?sy.itens.map((x,i)=>'<div class="dl"><span>'+x.data.split('-').reverse().slice(0,2).join('/')+' · '+x.horas+'</span><button class="s xd" onclick="delItemSys('+i+')" aria-label="Tirar este dia">✕</button></div>').join('')+'<div class="big" style="margin-top:4px">Total sistema: '+fmt(sy.total)+'</div>':'<span class="mu">Nenhum lançamento deste mês.</span>';
  $('rSys').textContent=sy?'Extras no sistema: '+fmt(sy.total):'';
-{const N=D.cfg.pm||3,hm0=hoje().slice(0,7);let ini;const mi=x=>{const a=x.split('-');return +a[0]*12+(+a[1]-1)},ms=n=>Math.floor(n/12)+'-'+p2(n%12+1);
+{const N=D.cfg.pm||6,hm0=hoje().slice(0,7);let ini;const mi=x=>{const a=x.split('-');return +a[0]*12+(+a[1]-1)},ms=n=>Math.floor(n/12)+'-'+p2(n%12+1);
   if(D.cfg.pi){const k=Math.floor((mi(hm0)-mi(D.cfg.pi))/N);ini=k>=0?mi(D.cfg.pi)+k*N:mi(hm0)-N+1}else ini=mi(hm0)-N+1;
   let tot=0,L='';for(let n=ini;n<ini+N;n++){const mm=ms(n);let e=0;Object.keys(D.r).forEach(k=>{if(!k.startsWith(mm))return;const c=calc(k,D.r[k]);if(c)e+=c.ex});tot+=e;L+=mm.split('-').reverse().join('/')+': '+fmt(e)+(vhd>0&&e>0?' · R$ '+(vhd*e/60).toFixed(2).replace('.',','):'')+(n<ini+N-1?'<br>':'')}
   $('acT').textContent='💰 Acumulado ('+ms(ini).split('-').reverse().join('/')+' a '+ms(ini+N-1).split('-').reverse().join('/')+')';$('acE').textContent=fmt(tot);$('acS').textContent='· '+fmt(tot)+(vhd>0&&tot>0?' · R$ '+(vhd*tot/60).toFixed(2).replace('.',','):'');$('acE').className='big'+(tot<0?' neg':'');$('acV').textContent='R$ '+(vhd>0&&tot>0?vhd*tot/60:0).toFixed(2).replace('.',',');$('acL').innerHTML=L+'<br><span class="mu">Pago a cada '+N+' '+(N>1?'meses':'mês')+' (muda na aba Config)</span>'}
@@ -109,7 +109,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='7.2';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='7.3';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});try{saidaPrev()}catch(e){}}
@@ -137,19 +137,19 @@ const sg=m=>(m>0?'+':'')+fmt(m);
 function renderBH(){
  if(!$('bhD'))return;const b=D.bh;if(!b){$('bhS').textContent='';$('bhOut').innerHTML='';return}
  const set=(id,v)=>{const e=$(id);if(e&&document.activeElement!==e)e.value=v};
- set('bhData',b.data||'');set('bhSaldo',b.saldo||'');set('bhCorte',b.corte||'');set('bhMeses',b.meses||4);
+ set('bhData',b.data||'');set('bhSaldo',b.saldo||'');set('bhCorte',b.corte||'');set('bhMeses',b.meses||6);
  if(!$('bhV').children.length){let h='';for(let i=0;i<4;i++)h+='<div class="row" style="margin-top:4px"><div><input type="month" id="bhm'+i+'"></div><div><input id="bhh'+i+'" placeholder="h:mm"></div></div>';$('bhV').innerHTML=h}
  for(let i=0;i<4;i++){const v=(b.venc||[])[i]||['',''];set('bhm'+i,v[0]);set('bhh'+i,v[1])}
  const base=ph(b.saldo)||0,mov=bhMov(),est=base+mov;
  $('bhS').textContent='· saldo estimado '+fmt(est);
  const ven=(b.venc||[]).filter(v=>v[0]&&v[1]).map(v=>'<div class="day">⏳ vence '+mf(v[0])+' <b style="float:right">'+fmt(ph(v[1])||0)+'</b></div>').join('');
- const meses=Number(b.meses)||4,mm={};Object.keys(D.r||{}).forEach(k=>{if(k>=(b.corte||'')){const x=calc(k,D.r[k]);if(x&&typeof x.ex==='number'&&x.ex>0){const m=k.slice(0,7);mm[m]=(mm[m]||0)+x.ex}}});
+ const meses=Number(b.meses)||6,mm={};Object.keys(D.r||{}).forEach(k=>{if(k>=(b.corte||'')){const x=calc(k,D.r[k]);if(x&&typeof x.ex==='number'&&x.ex>0){const m=k.slice(0,7);mm[m]=(mm[m]||0)+x.ex}}});
  const novos=Object.keys(mm).sort().filter(m=>mm[m]!==0).map(m=>{const y=+m.slice(0,4),mo=+m.slice(5,7),d=new Date(Date.UTC(y,mo-1+meses,1)),v=d.getUTCFullYear()+'-'+p2(d.getUTCMonth()+1);return '<div class="day">➕ extras de '+mf(m)+' <span class="mu" style="font-size:10px">(vencem '+mf(v)+')</span> <b style="float:right">'+sg(mm[m])+'</b></div>'}).join('');
  $('bhOut').innerHTML='<div class="day">Saldo do relatório'+(b.data?' ('+b.data.split('-').reverse().join('/')+')':'')+' <b style="float:right">'+fmt(base)+'</b></div><div class="day">Movimento desde '+(b.corte?b.corte.split('-').reverse().slice(0,2).join('/'):'—')+' <b style="float:right">'+sg(mov)+'</b></div><div class="day"><b>Saldo estimado agora</b> <b style="float:right">'+fmt(est)+'</b></div>'+novos+ven;
 }
 function salvaBH(){const venc=[];for(let i=0;i<4;i++){const m=$('bhm'+i).value,h=$('bhh'+i).value.trim();if(m&&h)venc.push([m,h])}
  const sd=$('bhSaldo').value.trim();if(sd&&ph(sd)==null)return alert('Saldo inválido. Use o formato 75:43.');
- D.bh={data:$('bhData').value,saldo:sd,corte:$('bhCorte').value,meses:Math.max(1,parseInt($('bhMeses').value)||4),m4:1,venc};gravar();render();alert('Banco de horas salvo')}
+ D.bh={data:$('bhData').value,saldo:sd,corte:$('bhCorte').value,meses:Math.max(1,parseInt($('bhMeses').value)||6),m4:1,m6:1,venc};gravar();render();alert('Banco de horas salvo')}
 var abrirManual=false;
 function ajustaHoje(){const box=$('manualBox'),res=$('resumoHoje');if(!box||!res)return;
  if(box.contains(document.activeElement))return;
@@ -168,7 +168,7 @@ function semear(){
  falta.forEach(k=>{D.r[k]=Object.assign({},D.r[k]||{},{i:S[k][0],o:S[k][1]})});
  gravar();render();alert('Pronto! '+falta.length+' dias preenchidos.');
 }
-tick();setInterval(tick,1000);render();lkInit();iaStatus();setTimeout(semear,600);setTimeout(()=>{if(D.bh&&!D.bh.m4){D.bh.meses=4;D.bh.m4=1;gravar();render()}},900);if(!D.bh){D.bh={data:'2026-10-19',saldo:'75:43',corte:'2026-10-17',venc:[['2026-12','10:49'],['2027-01','7:48'],['2027-02','13:31']]};gravar()}
+tick();setInterval(tick,1000);render();lkInit();iaStatus();setTimeout(semear,600);setTimeout(()=>{if(D.bh&&!D.bh.m4){D.bh.meses=6;D.bh.m4=1;D.bh.m6=1;gravar();render()}if(!D.m6){D.m6=1;D.cfg.pm=6;if(D.bh){D.bh.meses=6;D.bh.m6=1}gravar();render()}},900);if(!D.bh){D.bh={data:'2026-10-19',saldo:'75:43',corte:'2026-10-17',venc:[['2026-12','10:49'],['2027-01','7:48'],['2027-02','13:31']]};gravar()}
 const NMd=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],NMm=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 function datasCompactas(){document.querySelectorAll('input[type=date],input[type=month]').forEach(inp=>{
   if(!inp.parentNode.classList.contains('dw')){const w=document.createElement('div');w.className='dw';inp.parentNode.insertBefore(w,inp);const v=document.createElement('div');v.className='dv';w.appendChild(v);w.appendChild(inp);inp.addEventListener('input',datasCompactas);inp.addEventListener('change',datasCompactas)}

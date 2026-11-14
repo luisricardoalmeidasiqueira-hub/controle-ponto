@@ -92,7 +92,7 @@ select{height:30px!important;min-height:30px;padding:0 5px!important;font-size:1
  <div class="c"><details id="bhD"><summary><b>🏦 Banco de horas</b> <span id="bhS" class="mu" style="font-size:11px"></span></summary>
  <div class="mu" style="font-size:10px;margin-top:4px">Números do relatório "Vencimento de Banco de Horas" da Elektro, só para controle. Por enquanto o app só soma as horas extras positivas feitas depois da data de corte. A compensação a gente acerta depois.</div>
  <div class="row" style="margin-top:6px"><div><label>Data do relatório</label><input type="date" id="bhData"></div><div><label>Saldo total (h:mm)</label><input id="bhSaldo" placeholder="ex.: 75:43"></div></div>
- <div class="row" style="margin-top:6px"><div><label>Contar o que fizer a partir de</label><input type="date" id="bhCorte"></div><div><label>Vencem após (meses)</label><input id="bhMeses" inputmode="numeric" placeholder="4"></div></div>
+ <div class="row" style="margin-top:6px"><div><label>Contar o que fizer a partir de</label><input type="date" id="bhCorte"></div><div><label>Vencem após (meses)</label><input id="bhMeses" inputmode="numeric" placeholder="6"></div></div>
  <div class="mu" style="font-size:10px;margin-top:8px">Vencimentos (mês · horas)</div>
  <div id="bhV"></div>
  <button style="width:100%;margin-top:8px" onclick="salvaBH()">💾 Salvar banco de horas</button>
@@ -158,7 +158,7 @@ select{height:30px!important;min-height:30px;padding:0 5px!important;font-size:1
   <div id="nuDevLista" style="margin-top:4px"></div></div>
 </div><div class="c">
  <div class="row"><div><label>Entrada prevista</label><input type="time" id="ce"></div><div><label>Saída prevista</label><input type="time" id="cs"></div><div><label>Almoço (h:mm)</label><input id="cl" placeholder="1:30"></div></div>
- <div class="row" style="margin-top:8px"><div><label>Extras pagas a cada</label><select id="cpm" style="width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px"><option value="1">1 mês</option><option value="2">2 meses</option><option value="3">3 meses</option><option value="4">4 meses</option></select></div><div><label>1º mês do período (opcional)</label><input type="month" id="cpi"></div></div>
+ <div class="row" style="margin-top:8px"><div><label>Extras pagas a cada</label><select id="cpm" style="width:100%;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px"><option value="1">1 mês</option><option value="2">2 meses</option><option value="3">3 meses</option><option value="4">4 meses</option><option value="5">5 meses</option><option value="6">6 meses</option></select></div><div><label>1º mês do período (opcional)</label><input type="month" id="cpi"></div></div>
  <div class="row" style="margin-top:8px"><button onclick="salvaCfg()" title="Salvar" aria-label="Salvar">💾</button><button class="s" onclick="backup()" title="Copiar backup" aria-label="Copiar backup">📋</button><button class="s" onclick="compartilhar()" title="Compartilhar app" aria-label="Compartilhar app">📤</button><button class="s" onclick="atualizar()" title="Atualizar app" aria-label="Atualizar app">🔄</button></div>
  <div class="sub" style="margin-top:4px">💾 Salvar · 📋 Copiar backup · 📤 Compartilhar app · 🔄 Atualizar app</div>
  <div class="row" style="margin-top:8px"><button class="s" onclick="restaurar()" title="Restaurar backup" aria-label="Restaurar backup">📥</button><button class="s" onclick="baixarIcs()" title="Lembretes no calendário" aria-label="Lembretes no calendário">📅</button></div>
@@ -425,5 +425,5 @@ function pinRemover(){if(!localStorage.getItem('ponto_pin'))return alert('O bloq
 async function bioAtivar(){if(!localStorage.getItem('ponto_pin'))return alert('Primeiro defina o PIN (🔑). O Face ID/digital é um atalho para o PIN.');if(!window.PublicKeyCredential)return alert('Este aparelho ou navegador não permite Face ID/digital dentro do app. Use só o PIN.');
  try{const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'Controle de Ponto'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'ponto',displayName:'Controle de Ponto'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});localStorage.setItem('ponto_bio',b64(new Uint8Array(c.rawId)));lkSt();alert('Face ID / digital ativado. Na próxima vez que abrir, ele pede primeiro.')}catch(e){alert('Não foi possível ativar o Face ID/digital: '+(e&&e.message||e))}}
 </script>
-<script src="app.js?v=7.2"></script>
+<script src="app.js?v=7.3"></script>
 </body></html>
