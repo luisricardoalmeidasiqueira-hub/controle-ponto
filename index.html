@@ -100,9 +100,9 @@ select{height:30px!important;min-height:30px;padding:0 5px!important;font-size:1
 </details></div>
 <div class="c"><details><summary><b>🏖️ Férias</b> <span class="mu" style="font-size:11px">(não precisa lançar horas)</span></summary><div class="row" style="margin-top:6px"><div><label>De</label><input type="date" id="fa"></div><div><label>Até</label><input type="date" id="fb"></div></div><button id="fbtn" style="width:100%;margin-top:6px" onclick="addFer()">🏖️ Lançar férias</button><div id="ferList" style="margin-top:6px"></div></details></div>
 <div class="c"><details id="eleD"><summary><b>🗳️ Folga de eleição</b> <span class="mu" style="font-size:11px">(não precisa lançar horas)</span></summary><div class="mu" style="font-size:10px;margin-top:4px">Folga por ter trabalhado na eleição. Os dias lançados aqui não descontam do saldo nem do banco de horas.</div><div class="row" style="margin-top:6px"><div><label>De</label><input type="date" id="ea"></div><div><label>Até</label><input type="date" id="eb"></div></div><button id="ebtn" style="width:100%;margin-top:6px" onclick="addEle()">🗳️ Lançar folga de eleição</button><button class="s" style="width:100%;margin-top:6px" onclick="foto('ele')" title="Ler os dias pela foto do papel" aria-label="Ler os dias pela foto do papel">📷 Ler os dias pela foto do papel (IA)</button><div class="sub" id="eleMsg" style="margin-top:4px">Tire foto do papel onde você escreveu os dias: a IA lê e lança sozinha.</div><div id="eleList" style="margin-top:6px"></div>
-<div class="sub" style="margin-top:8px;text-align:left"><b>📎 Declaração da Justiça Eleitoral (prova)</b> · fica só neste celular</div><button class="s" style="width:100%;margin-top:4px" onclick="docAdd('ele')">📎 Guardar foto ou PDF da declaração</button><div id="docL_ele" style="margin-top:4px"></div></details></div>
+<div class="sub" style="margin-top:8px;text-align:left"><b>📎 Declaração da Justiça Eleitoral (prova)</b> · fica só neste celular</div><div class="row" style="margin-top:4px"><button class="s" onclick="docAdd('ele','c')" title="Tirar foto" aria-label="Tirar foto">📷</button><button class="s" onclick="docAdd('ele','g')" title="Escolher da galeria de fotos" aria-label="Galeria de fotos">🖼️</button><button class="s" onclick="docAdd('ele','p')" title="Escolher PDF ou arquivo" aria-label="PDF ou arquivo">📄</button></div><div class="sub" style="margin-top:2px">📷 Tirar foto · 🖼️ Galeria de fotos · 📄 Arquivos (PDF ou foto)</div><div id="docL_ele" style="margin-top:4px"></div></details></div>
 <div class="c"><details id="luD"><summary><b>🕊️ Luto / atestado de óbito</b> <span class="mu" style="font-size:11px">(não precisa lançar horas)</span></summary><div class="mu" style="font-size:10px;margin-top:4px">Falta justificada por falecimento. Os dias lançados aqui não descontam do saldo nem do banco de horas. Quantos dias valem depende da lei e da empresa: confirme com o RH.</div><div class="row" style="margin-top:6px"><div><label>De</label><input type="date" id="la"></div><div><label>Até</label><input type="date" id="lb"></div></div><button id="lbtn" style="width:100%;margin-top:6px" onclick="addLuto()">🕊️ Lançar luto / atestado</button><div id="luList" style="margin-top:6px"></div>
-<div class="sub" style="margin-top:8px;text-align:left"><b>📎 Atestado de óbito (prova)</b> · fica só neste celular</div><button class="s" style="width:100%;margin-top:4px" onclick="docAdd('lu')">📎 Guardar foto ou PDF do atestado</button><div id="docL_lu" style="margin-top:4px"></div></details></div>
+<div class="sub" style="margin-top:8px;text-align:left"><b>📎 Atestado de óbito (prova)</b> · fica só neste celular</div><div class="row" style="margin-top:4px"><button class="s" onclick="docAdd('lu','c')" title="Tirar foto" aria-label="Tirar foto">📷</button><button class="s" onclick="docAdd('lu','g')" title="Escolher da galeria de fotos" aria-label="Galeria de fotos">🖼️</button><button class="s" onclick="docAdd('lu','p')" title="Escolher PDF ou arquivo" aria-label="PDF ou arquivo">📄</button></div><div class="sub" style="margin-top:2px">📷 Tirar foto · 🖼️ Galeria de fotos · 📄 Arquivos (PDF ou foto)</div><div id="docL_lu" style="margin-top:4px"></div></details></div>
  <div class="c"><details id="dmD"><summary><b>📅 Dias do mês</b> <span id="dmS" class="mu" style="font-size:11px"></span></summary>
  <div class="row" style="margin-top:6px;align-items:flex-end"><div><label>Procurar um dia</label><input type="date" id="dmData" onchange="dmBusca()"></div><button class="s" style="flex:0 0 52px" onclick="dmFalta()" title="Dias sem registro" aria-label="Dias sem registro">🔍</button></div>
  <div class="sub" style="text-align:left;margin-top:2px">🔍 Mostrar os dias sem registro neste mês e lançar direto aqui. Para um dia só (sábado, domingo ou feriado), escolha a data em <b>Procurar um dia</b>.</div>
@@ -201,7 +201,7 @@ select{height:30px!important;min-height:30px;padding:0 5px!important;font-size:1
 <input type="file" accept="image/*" capture="environment" id="ff" style="display:none">
 <div id="zoom" onclick="this.style.display='none'"><img id="zi"><button id="zdel" onclick="event.stopPropagation();delFoto()">🗑 Apagar foto</button></div>
 
-<input type="file" id="docIn" accept="image/*,application/pdf" style="display:none">
+<input type="file" id="docInC" accept="image/*" capture="environment" style="display:none"><input type="file" id="docInG" accept="image/*" style="display:none"><input type="file" id="docInP" accept="application/pdf,image/*" style="display:none">
 <div id="docV" style="display:none;position:fixed;inset:0;background:#000d;z-index:40;align-items:center;justify-content:center" onclick="this.style.display='none';URL.revokeObjectURL(this.dataset.u||'')"><img id="docVi" alt="" style="max-width:96%;max-height:92%"></div>
 <script>
 const $=id=>document.getElementById(id);
@@ -443,9 +443,9 @@ const DOCDB={db:null,
  async limpa(){try{if(this.db){this.db.close();this.db=null}}catch(e){}indexedDB.deleteDatabase('ponto_docs')}};
 const DOC_TIPOS={ele:{nome:'Declaração eleitoral',arq:'declaracao-eleitoral'},lu:{nome:'Atestado de óbito',arq:'atestado-obito'}};
 let docTipo='ele',docUrls=[];
-function docAdd(t){docTipo=t;const i=$('docIn');i.value='';i.click()}
+function docAdd(t,m){docTipo=t;const i=$(m=='c'?'docInC':m=='p'?'docInP':'docInG');i.value='';i.click()}
 function docImg(file){return new Promise((ok,er)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,1800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?ok(b):er(new Error('imagem')),'image/jpeg',.82)};im.onerror=()=>{URL.revokeObjectURL(u);er(new Error('imagem'))};im.src=u})}
-$('docIn').onchange=async function(){const f=this.files[0];if(!f)return;
+const docEntrada=async function(){const f=this.files[0];if(!f)return;
  try{let blob=f,mime=f.type||'application/octet-stream';
   if(/^image\//.test(mime)){try{blob=await docImg(f);mime='image/jpeg'}catch(e){blob=f}}
   else if(!/pdf/.test(mime)){alert('Escolha uma foto ou um PDF.');return}
@@ -453,6 +453,7 @@ $('docIn').onchange=async function(){const f=this.files[0];if(!f)return;
   await DOCDB.put({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),tipo:docTipo,mime,buf,em:hoje(),arq:T.arq+'-'+hoje()+(pdf?'.pdf':'.jpg')});
   window.__docT=0;await docRender();alert('✅ Documento guardado neste celular.')}
  catch(e){alert('Não consegui guardar o documento. Veja se o celular tem espaço livre.')}};
+['docInC','docInG','docInP'].forEach(id=>{$(id).onchange=docEntrada});
 async function docRender(){docUrls.forEach(u=>URL.revokeObjectURL(u));docUrls=[];let L=[];try{L=await DOCDB.all()}catch(e){}
  ['ele','lu'].forEach(t=>{const el=$('docL_'+t);if(!el)return;const xs=L.filter(x=>x.tipo==t).sort((a,b)=>a.em<b.em?1:-1);
   el.innerHTML=xs.length?xs.map(x=>{let th='📄';if(!/pdf/.test(x.mime)){const u=URL.createObjectURL(new Blob([x.buf],{type:x.mime}));docUrls.push(u);th='<img src="'+u+'" alt="" style="height:30px;border-radius:4px">'}
@@ -579,7 +580,7 @@ function render(){
  {const v=parseFloat(String(D.cfg.vh||'').replace(',','.'))||0,val=v>0&&te>0?v*te/60:0,t='R$ '+val.toFixed(2).replace('.',',');if(document.activeElement!==$('vh'))$('vh').value=D.cfg.vh||'';$('rVal').textContent=t;$('rVal2').textContent=v>0?'Valor estimado das extras: '+t:''}
  [$('rSaldo'),$('rSaldo2')].forEach(e=>{e.textContent=fmt(te);e.className='big'+(te<0?' neg':'')});
 }
-const VERSAO='7.4';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
+const VERSAO='7.5';try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){};$('ver').textContent=VERSAO;$('ver2').textContent=VERSAO;
 function compartilhar(){const u=location.href.split('?')[0].split('#')[0];if(navigator.share)navigator.share({title:'Controle de Ponto',text:'Controle de Ponto: entrada, saída, horas extras e folgas',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>alert('Link copiado: '+u))}
 function atualizar(){if(!confirm('Buscar a versão mais nova do app? Seus dados não serão apagados.'))return;fetch(location.href.split('#')[0],{cache:'reload'}).finally(()=>location.reload())}
 function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('pt-BR');$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});try{saidaPrev()}catch(e){}}
